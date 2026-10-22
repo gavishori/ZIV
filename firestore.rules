@@ -43,7 +43,7 @@ service cloud.firestore {
     // Small images (e.g. the photo for Mom's opening) as data URLs.
     match /media/{id} {
       allow read: if allowed();
-      allow write: if allowed() && id in ['mom', 'parents']
+      allow write: if allowed() && id in ['mom']
                    && request.resource.data.dataUrl is string
                    && request.resource.data.dataUrl.size() < 900000;
     }

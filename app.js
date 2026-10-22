@@ -83,7 +83,6 @@ function enterProfile(key) {
   profile = key;
   document.querySelectorAll(".who-switch button").forEach((b) => b.classList.toggle("on", b.dataset.who === key));
   $("momPhotoBtn").hidden = !(key === "mom" && user?.email === OWNER_EMAIL);
-  $("mainPhotoBtn").hidden = user?.email !== OWNER_EMAIL;
   document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.hidden = !p.views.includes(b.dataset.view)));
   let view = "fichman";
   try { view = localStorage.getItem(`ziv-view-${key}`) || p.views[0]; } catch {}
@@ -113,7 +112,6 @@ document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
     }
   }
   user = auth.currentUser;
-  loadFigures();
   // Only the owner and the emails on the share list may enter.
   if (user.email !== OWNER_EMAIL) {
     let ok = false;
@@ -194,8 +192,7 @@ function playMomIntro() {
   playIntro($("momIntro"), 4500);
 }
 
-// Owner: choose the photos (Mom's opening, the figures on the main page). They are shrunk so each
-// fits in one Firestore document; the main one keeps its transparent background (WebP).
+// Owner: choose the photo for Mom's opening. It is shrunk so it fits in one Firestore document.
 async function shrinkPhoto(file, maxH, type, quality) {
   const img = await createImageBitmap(file);
   const scale = Math.min(1, maxH / img.height);
@@ -225,33 +222,17 @@ photoPicker("momPhotoBtn", "momPhotoFile", "mom", 700, "image/jpeg", (url) => {
   momPhotoLoaded = Promise.resolve();
   playMomIntro();
 });
-photoPicker("mainPhotoBtn", "mainPhotoFile", "parents", 900, "image/webp", (url) => {
-  showFigures(url);
-  toast("התמונה נשמרה. היא תופיע בדף הפתיחה");
-});
-
-// The figures on the main page are private too, so they appear once a signed-in, allowed user is known.
-let figuresLoaded = false;
-function showFigures(url) {
-  $("figImg").src = $("figMirror").src = url || "";
-  $("figures").hidden = !url;
-}
-async function loadFigures() {
-  if (figuresLoaded || !user) return;
-  figuresLoaded = true;
-  try { showFigures((await getDoc(doc(db, "media", "parents"))).data()?.dataUrl); } catch { figuresLoaded = false; }
-}
-
-// The slogan's letters drop in one after another.
-$("sloganText").innerHTML = [...$("sloganText").textContent]
-  .map((ch, i) => ch === " " ? '<span class="sp"> </span>' : `<span style="--i:${i}">${ch}</span>`).join("");
+// The slogan: each letter is a stack of layers (real 3D depth) riding a wave.
+const DEPTH = 10;
+$("sloganText").innerHTML = [...$("sloganText").textContent].map((ch, i) => ch === " "
+  ? '<span class="sp"> </span>'
+  : `<span class="L" style="--i:${i}">${Array.from({ length: DEPTH }, (_, k) =>
+      `<b style="--k:${k}"${k ? ' aria-hidden="true"' : ""}>${ch}</b>`).join("")}</span>`).join("");
 
 onAuthStateChanged(auth, (u) => {
   user = u;
   $("userEmail").textContent = u?.email || "";
   $("shareBtn").hidden = u?.email !== OWNER_EMAIL;
-  if (!u) { figuresLoaded = false; showFigures(""); }
-  else loadFigures();
   if (!u || !profile) showSplash();
 });
 
