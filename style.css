@@ -418,3 +418,10 @@ td .icon-del { position: static; }
 @keyframes momfloat { 50% { transform: translateY(-8px) rotate(-1deg); } }
 .mom-intro .intro-hint { color: #ffd3f5; }
 @media (prefers-reduced-motion: reduce) { .mom-photo { animation: none; } }
+
+/* notice shown inside apps' built-in browsers, where Google sign-in is blocked */
+.inapp-note { max-width: 360px; margin: 10px auto 0; padding: 12px 14px; border-radius: 12px; text-align: center;
+  background: rgba(255, 211, 77, .12); border: 1px solid rgba(255, 211, 77, .5); color: #fff; display: flex; flex-direction: column; gap: 6px; }
+.inapp-note span { font-size: 13px; color: #cfe0ff; }
+.inapp-note .row { justify-content: center; }
+.icon-link { display: inline-block; padding: 7px 14px; border-radius: 10px; background: var(--accent); color: #1e3c72; font-weight: 700; text-decoration: none; }

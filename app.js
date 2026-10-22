@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut }
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -101,13 +101,42 @@ function enterProfile(key) {
   $("appView").hidden = false;
 }
 
+// Google refuses to sign in inside apps' built-in browsers (WhatsApp, Facebook, Instagram...),
+// so there we ask to open the link in Chrome / Safari instead.
+const IN_APP = /FBAN|FBAV|Instagram|Line\/|WhatsApp|; wv\)|WebView/i.test(navigator.userAgent);
+if (IN_APP) {
+  $("inAppNote").hidden = false;
+  $("inAppChrome").hidden = !/Android/i.test(navigator.userAgent);
+  $("inAppChrome").href = `intent://${location.host}${location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+  $("inAppCopy").onclick = async () => {
+    try { await navigator.clipboard.writeText(location.origin + location.pathname); toast("הקישור הועתק. הדביקו אותו בכרום או בספארי"); }
+    catch { prompt("העתיקו את הקישור:", location.origin + location.pathname); }
+  };
+}
+const AUTH_ERRORS = {
+  "auth/popup-closed-by-user": "חלון הכניסה נסגר לפני שהכניסה הסתיימה. נסו שוב.",
+  "auth/cancelled-popup-request": "חלון הכניסה נסגר לפני שהכניסה הסתיימה. נסו שוב.",
+  "auth/network-request-failed": "אין חיבור לאינטרנט. בדקו את החיבור ונסו שוב.",
+  "auth/unauthorized-domain": "האתר לא מורשה לכניסה עם Google. פנו למנהל האתר.",
+  "auth/web-storage-unsupported": "הדפדפן חוסם את הכניסה. פתחו את הקישור בכרום או בספארי.",
+  "auth/operation-not-supported-in-this-environment": "הדפדפן הזה לא תומך בכניסה עם Google. פתחו את הקישור בכרום או בספארי.",
+};
+const authError = (e) => AUTH_ERRORS[e.code] || `הכניסה נכשלה (${e.code || e.message}). נסו לפתוח את הקישור בכרום או בספארי.`;
+// Returning from a redirect sign-in (used when the popup was blocked).
+getRedirectResult(auth).catch((e) => { $("loginErr").textContent = authError(e); });
+
 document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
   $("loginErr").textContent = "";
   if (!user) {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (e) {
-      $("loginErr").textContent = "הכניסה נכשלה: " + e.message;
+      if (e.code === "auth/popup-blocked") {
+        // Phones often block the popup: go to Google's page and come back instead.
+        await signInWithRedirect(auth, new GoogleAuthProvider());
+        return;
+      }
+      $("loginErr").textContent = authError(e);
       return;
     }
   }
