@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut }
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult,
+  signInWithEmailAndPassword, sendPasswordResetEmail, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -122,6 +123,39 @@ const AUTH_ERRORS = {
   "auth/operation-not-supported-in-this-environment": "הדפדפן הזה לא תומך בכניסה עם Google. פתחו את הקישור בכרום או בספארי.",
 };
 const authError = (e) => AUTH_ERRORS[e.code] || `הכניסה נכשלה (${e.code || e.message}). נסו לפתוח את הקישור בכרום או בספארי.`;
+Object.assign(AUTH_ERRORS, {
+  "auth/invalid-credential": "המייל או הסיסמה לא נכונים.",
+  "auth/wrong-password": "המייל או הסיסמה לא נכונים.",
+  "auth/user-not-found": "אין משתמש עם המייל הזה. בקשו ממנהל האתר ליצור לכם משתמש.",
+  "auth/invalid-email": "כתובת המייל לא תקינה.",
+  "auth/too-many-requests": "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.",
+});
+
+// Email + password, for people the owner created a user for in the Firebase console.
+$("pwToggle").onclick = () => { $("pwForm").hidden = !$("pwForm").hidden; if (!$("pwForm").hidden) $("pwEmail").focus(); };
+$("pwForm").onsubmit = async (ev) => {
+  ev.preventDefault();
+  $("loginErr").textContent = "";
+  try {
+    await signInWithEmailAndPassword(auth, $("pwEmail").value.trim(), $("pwPass").value);
+    $("pwPass").value = "";
+    $("pwForm").hidden = true;
+    toast("נכנסת בהצלחה. בחרו במי לצפות");
+  } catch (e) {
+    $("loginErr").textContent = authError(e);
+  }
+};
+$("pwReset").onclick = async () => {
+  const email = $("pwEmail").value.trim();
+  if (!email) { $("loginErr").textContent = "כתבו את המייל ואז לחצו שוב על \"שכחתי סיסמה\"."; return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast("נשלח מייל לאיפוס הסיסמה");
+  } catch (e) {
+    $("loginErr").textContent = authError(e);
+  }
+};
+
 // Returning from a redirect sign-in (used when the popup was blocked).
 getRedirectResult(auth).catch((e) => { $("loginErr").textContent = authError(e); });
 

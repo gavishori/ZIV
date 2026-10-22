@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
 
@@ -27,7 +27,14 @@
       <div class="figures" aria-hidden="true"><img src="assets/family.webp" alt=""><img class="mirror" src="assets/family.webp" alt=""></div>
       <button class="profile" data-profile="ziv"><span class="avatar"><img src="assets/face-ziv.webp" alt=""></span><span class="pname">זיו</span></button>
     </div>
-    <p class="hint-login" id="loginHint" hidden>בבחירה תתבקשו להיכנס עם חשבון Google מורשה</p>
+    <p class="hint-login" id="loginHint" hidden>בבחירה תתבקשו להיכנס עם חשבון Google מורשה ·
+      <button type="button" class="linklike" id="pwToggle">כניסה עם מייל וסיסמה</button></p>
+    <form class="pw-form" id="pwForm" hidden>
+      <input type="email" id="pwEmail" placeholder="מייל" autocomplete="username" dir="ltr" required>
+      <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr" required>
+      <button class="primary" type="submit">כניסה</button>
+      <button type="button" class="linklike" id="pwReset">שכחתי סיסמה</button>
+    </form>
     <p class="err" id="loginErr"></p>
     <div class="inapp-note" id="inAppNote" hidden>
       <b>כדי להיכנס, פתחו את הקישור בכרום או בספארי.</b>
@@ -225,6 +232,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=19"></script>
+<script type="module" src="app.js?v=20"></script>
 </body>
 </html>
