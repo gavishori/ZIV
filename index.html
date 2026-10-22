@@ -6,16 +6,28 @@
 <meta name="robots" content="noindex, nofollow">
 <title>זיו · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
-<section id="loginView" class="login" hidden>
-  <h1>זיו 🏠</h1>
-  <p>כניסה עם חשבון Google מורשה</p>
-  <button class="primary" id="loginBtn">כניסה עם Google</button>
-  <p class="err" id="loginErr"></p>
+<section id="loginView" class="splash" hidden>
+  <div class="splash-floor" aria-hidden="true"></div>
+  <div class="splash-glow" aria-hidden="true"></div>
+  <div class="stage">
+    <div class="logo3d" id="logo3d" role="img" aria-label="Z1V Channel">
+      <div class="z1v"><span class="depth" aria-hidden="true">Z1V</span><span class="face">Z1V</span></div>
+      <div class="channel">
+        <span data-text="CHANNEL">CHANNEL</span>
+        <div class="keys"></div>
+      </div>
+    </div>
+  </div>
+  <div class="splash-login">
+    <p>כניסה עם חשבון Google מורשה</p>
+    <button class="primary" id="loginBtn">כניסה עם Google</button>
+    <p class="err" id="loginErr"></p>
+  </div>
 </section>
 
 <div class="layout" id="appView" hidden>
@@ -155,6 +167,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=5"></script>
+<script type="module" src="app.js?v=6"></script>
 </body>
 </html>

@@ -62,6 +62,21 @@ $("loginBtn").onclick = async () => {
 };
 $("logoutBtn").onclick = () => signOut(auth);
 
+// Splash logo: tilts toward the pointer, and floats on its own when the pointer rests.
+{
+  const logo = $("logo3d");
+  let restTimer;
+  logo.addEventListener("animationend", (e) => { if (e.animationName === "enter") logo.classList.add("idle"); });
+  $("loginView").addEventListener("pointermove", (e) => {
+    const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5;
+    logo.classList.remove("idle");
+    logo.style.setProperty("--ry", `${x * 40}deg`);
+    logo.style.setProperty("--rx", `${-y * 30}deg`);
+    clearTimeout(restTimer);
+    restTimer = setTimeout(() => logo.classList.add("idle"), 2500);
+  });
+}
+
 onAuthStateChanged(auth, async (u) => {
   user = u;
   if (unsubEntries) { unsubEntries(); unsubEntries = null; }

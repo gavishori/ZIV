@@ -181,3 +181,62 @@ td .icon-del { position: static; }
   .inv-grid { grid-template-columns: 1fr 1fr; }
 }
 .inv-agent { margin-bottom: 16px; }
+
+/* ---- splash / sign-in: 3D "Z1V CHANNEL" logo ---- */
+.splash { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 28px; padding: 16px; background: radial-gradient(ellipse at 50% 35%, #1b2a55 0%, #0a0f24 55%, #04060f 100%); z-index: 5; }
+.splash-floor { position: absolute; left: -50%; right: -50%; bottom: -10%; height: 60%;
+  background-image: linear-gradient(rgba(90, 160, 255, 0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(90, 160, 255, 0.35) 1px, transparent 1px);
+  background-size: 60px 60px; transform: perspective(500px) rotateX(62deg); transform-origin: top;
+  mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 70%, transparent);
+  animation: floor 3s linear infinite; }
+@keyframes floor { to { background-position: 0 60px; } }
+.splash-glow { position: absolute; width: 70vmin; height: 70vmin; border-radius: 50%; top: 12%;
+  background: radial-gradient(circle, rgba(80, 140, 255, 0.35), rgba(160, 80, 255, 0.12) 45%, transparent 70%);
+  filter: blur(20px); animation: pulse 5s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.12); opacity: .75; } }
+
+.stage { perspective: 900px; position: relative; z-index: 1; }
+.logo3d { --rx: 8deg; --ry: -14deg; display: flex; flex-direction: column; align-items: center;
+  transform-style: preserve-3d; transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform .25s ease-out; animation: enter 1.4s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes enter { from { opacity: 0; transform: translateZ(-400px) rotateX(40deg) rotateY(-40deg); } }
+.logo3d.idle { animation: float 7s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: rotateX(8deg) rotateY(-14deg); } 50% { transform: rotateX(-4deg) rotateY(14deg) translateY(-8px); } }
+
+/* Extruded letters: the ::before copy carries the stacked depth shadow, the face has a metallic gradient. */
+.z1v, .channel span { position: relative; font-family: Orbitron, Heebo, sans-serif; font-weight: 900; line-height: 1; letter-spacing: .04em; }
+.z1v { position: relative; font-size: clamp(72px, 18vw, 170px); transform: translateZ(40px); }
+.z1v .depth { position: absolute; inset: 0; color: #2b3b66;
+  text-shadow: 1px 1px 0 #24345c, 2px 2px 0 #21305a, 3px 3px 0 #1d2b52, 4px 4px 0 #1a274b, 5px 5px 0 #172344,
+  6px 6px 0 #141f3d, 7px 7px 0 #111b36, 8px 8px 0 #0e1730, 10px 12px 18px rgba(0, 0, 0, .6), 0 0 40px rgba(110, 170, 255, .45); }
+.z1v .face { position: relative; display: block; color: transparent;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, .95) 50%, transparent 58%) -200% 0 / 250% 100% no-repeat,
+    linear-gradient(180deg, #ffffff 0%, #dfe9ff 40%, #8fa6d6 52%, #ffffff 70%, #b9c9ef 100%);
+  -webkit-background-clip: text; background-clip: text; animation: textshine 4.5s ease-in-out 1.4s infinite; }
+@keyframes textshine { 0% { background-position: 200% 0, 0 0; } 55%, 100% { background-position: -200% 0, 0 0; } }
+.channel span::before { content: attr(data-text); position: absolute; inset: 0; z-index: -1; }
+@keyframes shine { from { transform: translateX(-120%); } 60%, to { transform: translateX(120%); } }
+
+.channel { position: relative; margin-top: 18px; padding: 16px 30px 0; background: linear-gradient(180deg, #121212, #000);
+  border: 1px solid rgba(255, 255, 255, .18); border-radius: 6px; transform: translateZ(20px);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .8), 8px 10px 0 #05070d, 14px 22px 40px rgba(0, 0, 0, .65), 0 0 50px rgba(90, 150, 255, .25); overflow: hidden; }
+.channel span { display: block; font-size: clamp(26px, 6.5vw, 58px); color: #fff; text-shadow: 0 0 18px rgba(140, 190, 255, .55); }
+.channel span::before { text-shadow: 2px 2px 0 #3a3a3a, 3px 3px 0 #2a2a2a, 4px 4px 6px rgba(0, 0, 0, .8); }
+/* Piano keys / film edge along the bottom of the box, tilted away in 3D. */
+.keys { height: 22px; margin: 12px -30px 0;
+  background: repeating-linear-gradient(90deg, #f3f3f3 0 9px, #111 9px 13px);
+  transform: perspective(120px) rotateX(38deg); transform-origin: bottom; opacity: .9; }
+.channel::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .18) 50%, transparent 65%);
+  animation: shine 4s ease-in-out 2s infinite; }
+
+.splash-login { position: relative; z-index: 1; text-align: center; color: #cfe0ff; animation: fadeup 1s .9s both; }
+.splash-login p { margin: 0 0 10px; }
+.splash-login .err { margin-top: 10px; }
+.splash-login button.primary { padding: 10px 26px; font-size: 1rem; box-shadow: 0 0 24px rgba(255, 211, 77, .35); }
+@keyframes fadeup { from { opacity: 0; transform: translateY(16px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-floor, .splash-glow, .z1v .face, .channel::after, .logo3d, .logo3d.idle, .splash-login { animation: none; }
+}
