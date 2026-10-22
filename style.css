@@ -119,3 +119,34 @@ fieldset.pay legend { font-size: 14px; padding: 0 4px; }
 .icon-btn.wa { background: #25d366; }
 .icon-btn.tel { background: #2f80ed; }
 .icon-btn:hover { filter: brightness(1.1); }
+
+/* ---- investments ---- */
+#investments h3, [data-view=investments] h3 { margin: 22px 0 10px; font-size: 1.1rem; }
+[data-view=investments] h3 small { color: var(--muted); font-weight: 400; font-size: 13px; }
+.inv-cards { grid-template-columns: repeat(3, 1fr); margin-bottom: 6px; }
+.inv-src { color: var(--muted); font-size: 13px; margin: 0 0 6px; }
+.inv-summary { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.inv-sum-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.inv-sum-row:last-child { border-bottom: 0; }
+.inv-sum-row b { display: block; }
+.inv-sum-row small, .kv small { display: block; color: var(--muted); font-size: 12px; }
+.inv-policy { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+.inv-policy-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.inv-policy-head .muted, .inv-dates { color: var(--muted); }
+.inv-dates { font-size: 13px; margin: 6px 0 10px; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+.inv-grid { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: flex-end; background: rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 14px; }
+.kv b { font-size: 1.05rem; }
+.inv-tracks { margin-top: 10px; }
+.inv-tracks summary { cursor: pointer; padding: 6px 0; }
+.inv-in { padding: 4px 8px; border: 1px solid var(--glass-line); border-radius: 6px; background: var(--field); color: var(--field-text); width: 120px; font-size: 14px; }
+.inv-in.wide { width: 260px; max-width: 100%; }
+.inv-in.lbl { width: 140px; display: block; margin-bottom: 2px; }
+button.sm { padding: 4px 10px; font-size: 13px; margin-top: 8px; }
+button.xs { padding: 1px 7px; font-size: 12px; }
+#invEditBar { display: inline-flex; gap: 8px; }
+@media (max-width: 820px) {
+  .inv-cards { grid-template-columns: 1fr 1fr; }
+  .inv-sum-row { grid-template-columns: 1fr 1fr; }
+  .inv-sum-name { grid-column: 1 / -1; }
+}

@@ -4,6 +4,7 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signO
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
+import { startInvestments, stopInvestments } from "./investments.js?v=1";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -65,18 +66,21 @@ onAuthStateChanged(auth, async (u) => {
   user = u;
   if (unsubEntries) { unsubEntries(); unsubEntries = null; }
   if (!u) {
+    stopInvestments();
     $("loginView").hidden = false;
     $("appView").hidden = true;
     return;
   }
   $("userEmail").textContent = u.email;
   $("shareBtn").hidden = u.email !== OWNER_EMAIL;
+  startInvestments(db, u);
   unsubEntries = onSnapshot(entriesCol, (snap) => {
     entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     $("loginView").hidden = true;
     $("appView").hidden = false;
     render();
   }, (err) => {
+    stopInvestments();
     $("appView").hidden = true;
     $("loginView").hidden = false;
     $("loginErr").textContent = err.code === "permission-denied"
