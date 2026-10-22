@@ -134,7 +134,18 @@ Object.assign(AUTH_ERRORS, {
 // Email + password, for people the owner created a user for in the Firebase console.
 // The form is always shown while signed out; picking a person signs in with it when it is filled,
 // and with Google when it is empty.
-$("pwForm").onsubmit = (ev) => ev.preventDefault();
+$("pwForm").onsubmit = async (ev) => {
+  ev.preventDefault();
+  $("loginErr").textContent = "";
+  try {
+    await signInWithEmailAndPassword(auth, $("pwEmail").value.trim(), $("pwPass").value);
+    $("pwPass").value = "";
+    toast("נכנסת בהצלחה. עכשיו בחרו במי לצפות");
+    document.querySelector(".family").classList.add("pick-now");
+  } catch (e) {
+    $("loginErr").textContent = authError(e);
+  }
+};
 $("pwReset").onclick = async () => {
   const email = $("pwEmail").value.trim();
   if (!email) { $("loginErr").textContent = "כתבו את המייל ואז לחצו שוב על \"שכחתי סיסמה\"."; return; }

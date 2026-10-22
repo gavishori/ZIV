@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=28">
 </head>
 <body>
 
@@ -28,11 +28,13 @@
       <button class="profile" data-profile="ziv"><span class="avatar"><img src="assets/face-ziv.webp" alt=""></span><span class="pname">זיו</span></button>
     </div>
     <form class="pw-form" id="pwForm" hidden>
-      <p class="pw-title">קיבלתם סיסמה ממנהל האתר? הכניסו אותה כאן ובחרו במי לצפות</p>
-      <input type="email" id="pwEmail" placeholder="מייל" autocomplete="username" dir="ltr">
-      <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr">
-      <button type="button" class="linklike" id="pwReset">שכחתי סיסמה</button>
-      <p class="hint-login">בלי סיסמה? פשוט בוחרים במי לצפות ונכנסים עם חשבון Google</p>
+      <p class="pw-title">כניסה עם סיסמה שקיבלתם ממנהל האתר</p>
+      <div class="pw-row">
+        <input type="email" id="pwEmail" placeholder="מייל" autocomplete="username" dir="ltr" required>
+        <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr" required>
+        <button class="primary" type="submit">כניסה</button>
+      </div>
+      <p class="hint-login"><button type="button" class="linklike" id="pwReset">שכחתי סיסמה</button> · בלי סיסמה? בוחרים למעלה במי לצפות ונכנסים עם Google</p>
     </form>
     <p class="err" id="loginErr"></p>
     <div class="inapp-note" id="inAppNote" hidden>
@@ -231,6 +233,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=21"></script>
+<script type="module" src="app.js?v=22"></script>
 </body>
 </html>
