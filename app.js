@@ -5,6 +5,7 @@ import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, g
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
 import { startInvestments, stopInvestments } from "./investments.js?v=3";
+import { startInsurance, stopInsurance } from "./insurance.js?v=1";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -82,6 +83,7 @@ onAuthStateChanged(auth, async (u) => {
   if (unsubEntries) { unsubEntries(); unsubEntries = null; }
   if (!u) {
     stopInvestments();
+    stopInsurance();
     $("loginView").hidden = false;
     $("appView").hidden = true;
     return;
@@ -89,6 +91,7 @@ onAuthStateChanged(auth, async (u) => {
   $("userEmail").textContent = u.email;
   $("shareBtn").hidden = u.email !== OWNER_EMAIL;
   startInvestments(db, u);
+  startInsurance(db, u);
   unsubEntries = onSnapshot(entriesCol, (snap) => {
     entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     $("loginView").hidden = true;
@@ -96,6 +99,7 @@ onAuthStateChanged(auth, async (u) => {
     render();
   }, (err) => {
     stopInvestments();
+    stopInsurance();
     $("appView").hidden = true;
     $("loginView").hidden = false;
     $("loginErr").textContent = err.code === "permission-denied"

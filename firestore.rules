@@ -36,6 +36,10 @@ service cloud.firestore {
       allow read, write: if allowed() && docId == 'data';
     }
 
+    match /insurance/{docId} {
+      allow read, write: if allowed() && docId == 'data';
+    }
+
     match /access/{email} {
       allow read: if isOwner() || (signedIn() && request.auth.token.email == email);
       allow create, update: if isOwner()
