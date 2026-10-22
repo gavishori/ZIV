@@ -7,7 +7,8 @@ import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, g
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
 import { startInvestments, stopInvestments } from "./investments.js?v=6";
 import { startInsurance, stopInsurance } from "./insurance.js?v=5";
-import { resetInsights } from "./insights.js?v=2";
+import { resetInsights } from "./insights.js?v=3";
+import { loadOwnerTabs, clearOwnerTabs } from "./extras.js?v=1";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -74,6 +75,7 @@ function showSplash(err = "") {
 }
 
 function stopAll() {
+  clearOwnerTabs();
   stopInvestments();
   stopInsurance();
   if (unsubEntries) { unsubEntries(); unsubEntries = null; }
@@ -91,6 +93,7 @@ function enterProfile(key) {
   showView("insights");
   startInvestments(db, user, p.doc);
   startInsurance(db, user, p.doc);
+  loadOwnerTabs(db, user, key);
   if (p.views.includes("fichman")) {
     unsubEntries = onSnapshot(entriesCol, (snap) => {
       entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -306,6 +309,7 @@ function showView(name) {
   try { if (profile) localStorage.setItem(`ziv-view-${profile}`, name); } catch {}
 }
 document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.onclick = () => showView(b.dataset.view)));
+window.addEventListener("ziv:show", (e) => showView(e.detail));
 
 const payCell = (e) => !e.pay ? "" :
   esc(PAY_LABELS[e.pay] || e.pay) + (e.payNote ? `<small>${esc(e.payNote)}</small>` : "");

@@ -52,6 +52,11 @@ service cloud.firestore {
                    && request.resource.data.dataUrl.size() < 900000;
     }
 
+    // The owner's own documents (extra tabs and their answers): nobody else, not even shared users.
+    match /owner/{docId} {
+      allow read, write: if isOwner();
+    }
+
     match /access/{email} {
       allow read: if isOwner() || (signedIn() && request.auth.token.email == email);
       allow create, update: if isOwner()

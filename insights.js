@@ -125,7 +125,7 @@ function apartmentInsights(entries) {
   const income = ledger.filter((e) => e.amount > 0).reduce((s, e) => s + e.amount, 0);
   const expense = ledger.filter((e) => e.amount < 0).reduce((s, e) => s + e.amount, 0);
   const tenant = entries.filter((e) => e.kind === "tenant").reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  out.cards.push({ go: { view: "fichman" }, icon: "🏢", label: "דירה פיכמן 5", value: money(income + expense), sub: `הכנסות ${money(income)} · הוצאות ${money(-expense)}` });
+  out.cards.push({ go: { view: "fichman" }, icon: "🏢", label: "רווחים מהדירה בפיכמן 5", value: money(income + expense), sub: `הכנסות ${money(income)} · הוצאות ${money(-expense)} · רוב הסכום כבר עבר לפניקס` });
   const rents = ledger.filter((e) => e.amount > 0 && /שכ/.test(e.desc + e.cat));
   if (rents.length) out.notes.push({ go: { view: "fichman", tab: "ledger", search: "שכ" }, level: "good", text: `שכ״ד: ${rents.length} תשלומים, ${money(rents.reduce((s, e) => s + e.amount, 0))}` });
   const lastRent = rents.map((e) => e.date).filter(Boolean).sort().pop();

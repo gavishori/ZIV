@@ -533,3 +533,26 @@ button.linklike { border: 0; background: none; padding: 0; color: #9fc2ff; text-
 .snap-notes li.go::after { content: "←"; position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .flash { animation: flash 2.4s ease-out; }
 @keyframes flash { 0%, 30% { background: rgba(255, 211, 77, .35); box-shadow: inset 0 0 0 2px var(--accent); } 100% { background: transparent; box-shadow: none; } }
+
+/* ---- owner-only extra tabs ---- */
+.lock { font-size: 12px; font-weight: 500; color: #1e3c72; background: var(--accent); border-radius: 999px; padding: 2px 10px; margin-inline-start: 8px; vertical-align: middle; }
+.xtab .snap-value.neg { color: var(--neg); } .xtab .snap-value.pos { color: var(--pos); }
+table.xt td.num { position: relative; }
+.mbar { display: block; height: 4px; border-radius: 4px; margin-top: 3px; margin-inline-start: auto; }
+.mbar.in { background: var(--pos); } .mbar.out { background: var(--neg); }
+table.xt tr[data-cat] { cursor: pointer; }
+table.xt tr[data-cat]:hover { background: rgba(255, 255, 255, .08); }
+tr.x-detail > td { background: rgba(0, 0, 0, .18); padding: 8px; }
+tr.x-detail table { font-size: 13px; }
+.q-list { display: flex; flex-direction: column; gap: 10px; }
+.q-card { background: rgba(255, 255, 255, .07); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.q-card.done { border-color: rgba(127, 224, 168, .5); }
+.q-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.q-st { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.q-card.done .q-st { color: var(--pos); }
+.q-amt { color: var(--accent); font-size: 13px; margin-top: 2px; }
+.q-card p { margin: 6px 0; color: #e7eefc; font-size: 14px; }
+.q-card textarea { width: 100%; box-sizing: border-box; min-height: 56px; margin-top: 6px; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--glass-line); background: var(--field); color: var(--field-text); font: inherit; resize: vertical; }
+.q-rows { margin-top: 6px; }
+.q-copy { margin-top: 12px; }
