@@ -189,7 +189,7 @@ function photoPicker(btn, input, id, maxH, type, after) {
     }
   };
 }
-photoPicker("momPhotoBtn", "momPhotoFile", "mom", 700, "image/jpeg", (url) => {
+photoPicker("momPhotoBtn", "momPhotoFile", "mom", 700, "image/webp", (url) => {
   showMomPhoto(url);
   momPhotoLoaded = Promise.resolve();
   playMomIntro();
