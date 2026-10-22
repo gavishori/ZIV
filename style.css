@@ -106,3 +106,16 @@ fieldset.pay legend { font-size: 14px; padding: 0 4px; }
   th:nth-child(2), td:nth-child(2), th:nth-child(4), td:nth-child(4) { display: none; }
   td.desc { min-width: 0; }
 }
+
+/* ---- contact cards (insurance / investments agents) ---- */
+.contact { display: flex; align-items: center; gap: 12px; max-width: 460px; background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.contact > div { flex: 1; display: flex; flex-direction: column; }
+.contact-role { color: var(--muted); font-size: 13px; }
+.contact b { font-size: 1.15rem; }
+.contact-phone { direction: ltr; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; flex: none; }
+.icon-btn svg { width: 24px; height: 24px; }
+.icon-btn.wa { background: #25d366; }
+.icon-btn.tel { background: #2f80ed; }
+.icon-btn:hover { filter: brightness(1.1); }
