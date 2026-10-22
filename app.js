@@ -13,6 +13,7 @@ const entriesCol = collection(db, "entries");
 const $ = (id) => document.getElementById(id);
 const TENANT_CATS = ["ועד", "מים", "חשמל", "ארנונה", "גז", "אחר"];
 const LEDGER_CATS = ["שכ״ד", "תיקונים", "ריהוט וציוד", "ועד", "ארנונה", "ניקיון", "אחר"];
+const PAY_LABELS = { card0616: "💳 כרטיס 0616", cash: "💵 מזומן", other: "אחר" };
 
 let user = null;
 let entries = [];
@@ -63,7 +64,6 @@ $("logoutBtn").onclick = () => signOut(auth);
 onAuthStateChanged(auth, async (u) => {
   user = u;
   if (unsubEntries) { unsubEntries(); unsubEntries = null; }
-  $("userBox").hidden = !u;
   if (!u) {
     $("loginView").hidden = false;
     $("appView").hidden = true;
@@ -84,6 +84,19 @@ onAuthStateChanged(auth, async (u) => {
       : "שגיאה בטעינת הנתונים: " + err.message;
   });
 });
+
+// ---------- side menu ----------
+function showView(name) {
+  if (!document.querySelector(`.view-panel[data-view="${name}"]`)) name = "fichman";
+  document.querySelectorAll("#sideNav > button").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
+  document.querySelectorAll(".view-panel").forEach((p) => p.classList.toggle("view-active", p.dataset.view === name));
+  try { localStorage.setItem("ziv-view", name); } catch {}
+}
+document.querySelectorAll("#sideNav > button").forEach((b) => (b.onclick = () => showView(b.dataset.view)));
+try { showView(localStorage.getItem("ziv-view") || "fichman"); } catch { showView("fichman"); }
+
+const payCell = (e) => !e.pay ? "" :
+  esc(PAY_LABELS[e.pay] || e.pay) + (e.payNote ? `<small>${esc(e.payNote)}</small>` : "");
 
 // ---------- render ----------
 function render() {
@@ -113,7 +126,7 @@ function render() {
   const shown = list
     .filter((e) => !sel.value || e.cat === sel.value)
     .filter((e) => !$("openOnly").checked || e.open)
-    .filter((e) => !q || [e.desc, e.cat, showDate(e.date), String(e.amount)].join(" ").toLowerCase().includes(q))
+    .filter((e) => !q || [e.desc, e.cat, showDate(e.date), String(e.amount), PAY_LABELS[e.pay], e.payNote].join(" ").toLowerCase().includes(q))
     .sort((a, b) => {
       // Undated rows always go last, in their original order.
       if (!a.date !== !b.date) return a.date ? -1 : 1;
@@ -126,6 +139,7 @@ function render() {
       <td class="date">${showDate(e.date) || "—"}</td>
       <td>${e.cat ? `<span class="tag">${esc(e.cat)}</span>` : ""}</td>
       <td class="desc">${esc(e.desc)}</td>
+      <td class="paycell">${payCell(e)}</td>
       <td class="num ${tab === "ledger" ? (e.amount < 0 ? "neg" : e.amount > 0 ? "pos" : "") : ""}">${fmt(Number(e.amount) || 0)}</td>
       <td>${e.open ? "⚠️" : ""}</td>
     </tr>`).join("");
@@ -160,6 +174,10 @@ function fillCats(kind) {
 }
 form.kind.onchange = () => fillCats(form.kind.value);
 
+// The notes field shows only for "אחר", or when an older entry already has a note.
+const syncPayNote = () => { $("payNoteRow").hidden = form.pay.value !== "other" && !form.payNote.value; };
+form.querySelectorAll('input[name="pay"]').forEach((r) => (r.onchange = syncPayNote));
+
 function openEntry(e) {
   editing = e || null;
   $("dlgTitle").textContent = e ? "עריכת רשומה" : "רשומה חדשה";
@@ -169,6 +187,9 @@ function openEntry(e) {
   form.desc.value = e?.desc || "";
   form.amount.value = e ? e.amount : "";
   form.open.checked = !!e?.open;
+  form.querySelectorAll('input[name="pay"]').forEach((r) => (r.checked = r.value === (e?.pay || "")));
+  form.payNote.value = e?.payNote || "";
+  syncPayNote();
   $("delBtn").hidden = !e;
   fillCats(form.kind.value);
   $("entryDlg").showModal();
@@ -185,6 +206,8 @@ form.onsubmit = async (ev) => {
     desc: form.desc.value.trim(),
     amount: round2(Number(form.amount.value) || 0),
     open: form.open.checked,
+    pay: form.pay.value || "",
+    payNote: form.pay.value === "other" || form.payNote.value.trim() ? form.payNote.value.trim() : "",
     order: editing?.order ?? Date.now(),
     updatedAt: serverTimestamp(),
     updatedBy: user.email,
@@ -211,6 +234,8 @@ $("delBtn").onclick = async () => {
 };
 
 // ---------- import from the original spreadsheet ----------
+const guessPay = (d) => /0616/.test(d) ? "card0616" : /מזומן/.test(d) ? "cash" : "";
+
 // Layout: data starts on row 5. A-D = tenant payments (date, category, description, amount);
 // F-H = income/expenses (date, description, amount).
 function parseWorkbook(wb) {
@@ -223,14 +248,14 @@ function parseWorkbook(wb) {
     const tDesc = String(r[2] ?? "").trim();
     const tAmt = Number(r[3]) || 0;
     if (tDesc || tAmt) {
-      out.push({ kind: "tenant", date: parseDate(r[0]), cat: String(r[1] ?? "").trim(), desc: tDesc, amount: round2(tAmt), order: ++order });
+      out.push({ kind: "tenant", date: parseDate(r[0]), cat: String(r[1] ?? "").trim(), desc: tDesc, amount: round2(tAmt), pay: guessPay(tDesc), payNote: "", order: ++order });
     }
     const lDesc = String(r[6] ?? "").trim();
     const lAmt = Number(r[7]) || 0;
     if (lDesc || lAmt) {
       const cat = /שכ["״]?ד/.test(lDesc) ? "שכ״ד" : /ועד בית/.test(lDesc) ? "ועד" : /ארנונה/.test(lDesc) ? "ארנונה"
         : /מנקה|ניקוי/.test(lDesc) ? "ניקיון" : lAmt < 0 ? "ריהוט וציוד" : "";
-      out.push({ kind: "ledger", date: parseDate(r[5]), cat, desc: lDesc, amount: round2(lAmt), order: ++order });
+      out.push({ kind: "ledger", date: parseDate(r[5]), cat, desc: lDesc, amount: round2(lAmt), pay: guessPay(lDesc), payNote: "", order: ++order });
     }
   }
   return out;
@@ -270,11 +295,12 @@ $("exportBtn").onclick = () => {
   const byDate = (a, b) => (!a.date !== !b.date ? (a.date ? -1 : 1) : a.date < b.date ? -1 : a.date > b.date ? 1 : (a.order ?? 0) - (b.order ?? 0));
   const sheet = (kind) => {
     const list = entries.filter((e) => e.kind === kind).sort(byDate);
-    const aoa = [["תאריך", "קטגוריה", "תיאור", "סכום", "פתוח"],
-      ...list.map((e) => [showDate(e.date), e.cat, e.desc, Number(e.amount) || 0, e.open ? "כן" : ""])];
+    const payText = (e) => [PAY_LABELS[e.pay]?.replace(/^\S+ /, "") || "", e.payNote || ""].filter(Boolean).join(" - ");
+    const aoa = [["תאריך", "קטגוריה", "תיאור", "סכום", "אופן תשלום", "פתוח"],
+      ...list.map((e) => [showDate(e.date), e.cat, e.desc, Number(e.amount) || 0, payText(e), e.open ? "כן" : ""])];
     aoa.push([], ["", "", "סה״כ", round2(list.reduce((s, e) => s + (Number(e.amount) || 0), 0))]);
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws["!cols"] = [{ wch: 12 }, { wch: 14 }, { wch: 80 }, { wch: 12 }, { wch: 6 }];
+    ws["!cols"] = [{ wch: 12 }, { wch: 14 }, { wch: 80 }, { wch: 12 }, { wch: 24 }, { wch: 6 }];
     ws["!views"] = [{ RTL: true }];
     return ws;
   };
