@@ -8,8 +8,9 @@ const money = (n, digits = 2) => "₪" + (Number(n) || 0).toLocaleString("he-IL"
 const monthNow = () => { const d = new Date(); return `${d.getMonth() + 1}/${d.getFullYear()}`; };
 const COMPANIES = ["הראל", "מגדל", "הפניקס", "כלל", "מנורה", "הכשרה", "איילון", "AIG", "ביטוח ישיר"];
 const ICONS = { teal: "🏠", orange: "🩺", green: "👨‍👩‍👧" };
-// Monthly cost of a row: annual premiums are spread over 12 months.
-const monthly = (r) => (Number(r.premium) || 0) / (r.freq === "שנתית" ? 12 : 1);
+const FREQS = ["חודשית", "שנתית", "חד פעמית"];
+// Monthly cost of a row: annual premiums are spread over 12 months; one-time payments aren't recurring.
+const monthly = (r) => r.freq === "חד פעמית" ? 0 : (Number(r.premium) || 0) / (r.freq === "שנתית" ? 12 : 1);
 
 let user, ref, data = null, draft = null, unsub = null;
 
@@ -92,23 +93,23 @@ function render() {
 }
 
 function coClass(name) {
-  return { "הראל": "harel", "מגדל": "migdal", "הפניקס": "phoenix", "כלל": "clal", "מנורה": "menora" }[name] || "";
+  return { "הראל": "harel", "מגדל": "migdal", "הפניקס": "phoenix", "כלל": "clal", "מנורה": "menora", "הכשרה": "hachshara" }[name] || "";
 }
 
 function row(r, path, ci, si, ri, edit) {
   if (edit) {
     return `<div class="ins-row edit">
-      <span>${field(`${path}.type`, r.type, { ph: "סוג הכיסוי" })}</span>
+      <span>${field(`${path}.type`, r.type, { ph: "סוג הכיסוי" })}${field(`${path}.note`, r.note || "", { cls: "note-in", ph: "פרטים נוספים" })}</span>
       <span>${field(`${path}.period`, r.period, { ph: "מתחדש / 01/01/2026-31/12/2026" })}</span>
       <span class="prem-edit">${field(`${path}.premium`, r.premium, { type: "number" })}
-        <select class="inv-in" data-path="${path}.freq">${["חודשית", "שנתית"].map((f) => `<option${(r.freq || "חודשית") === f ? " selected" : ""}>${f}</option>`).join("")}</select></span>
+        <select class="inv-in" data-path="${path}.freq">${FREQS.map((f) => `<option${(r.freq || "חודשית") === f ? " selected" : ""}>${f}</option>`).join("")}</select></span>
       <span>${field(`${path}.policy`, r.policy, { cls: "ltr-in" })}</span>
       <span>${field(`${path}.company`, r.company, { list: "coList" })}</span>
       <button type="button" class="icon-del" data-act="delRow" data-ci="${ci}" data-si="${si}" data-ri="${ri}" title="מחיקת הפוליסה" aria-label="מחיקת הפוליסה">✕</button>
     </div>`;
   }
   return `<div class="ins-row">
-    <span class="ins-type">${esc(r.type)}</span>
+    <span class="ins-type">${esc(r.type)}${r.note ? `<small>${esc(r.note)}</small>` : ""}</span>
     <span class="ins-period" data-label="תקופה">${esc(r.period)}</span>
     <span class="ins-prem" data-label="פרמיה"><b>${money(r.premium)}</b><small>${esc(r.freq || "חודשית")}</small></span>
     <span class="ins-pol ltr" data-label="פוליסה">${esc(r.policy)}</span>

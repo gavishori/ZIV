@@ -438,3 +438,8 @@ td .icon-del { position: static; }
 @media (prefers-reduced-motion: reduce) {
   .slogan3d, .slogan-rock, .L, .L b, .figures, .figures img { animation: none !important; }
 }
+
+/* insurance: extra details under the type, one-time premiums, more company colours */
+.ins-type small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.inv-in.note-in { margin-top: 4px; font-size: 12px; padding: 3px 8px; }
+.co.hachshara { color: #d4202a; }
