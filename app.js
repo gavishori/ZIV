@@ -82,6 +82,7 @@ function enterProfile(key) {
   stopAll();
   profile = key;
   document.querySelectorAll(".who-switch button").forEach((b) => b.classList.toggle("on", b.dataset.who === key));
+  $("momPhotoBtn").hidden = !(key === "mom" && user?.email === OWNER_EMAIL);
   document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.hidden = !p.views.includes(b.dataset.view)));
   let view = "fichman";
   try { view = localStorage.getItem(`ziv-view-${key}`) || p.views[0]; } catch {}
@@ -124,12 +125,14 @@ document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
   }
   enterProfile(b.dataset.profile);
   if (b.dataset.profile === "ziv") playZivIntro();
+  if (b.dataset.profile === "mom") playMomIntro();
 }));
 $("switchBtn").onclick = () => showSplash();
 document.querySelectorAll(".who-switch button").forEach((b) => (b.onclick = () => {
   if (b.dataset.who === profile) return;
   enterProfile(b.dataset.who);
   if (b.dataset.who === "ziv") playZivIntro();
+  if (b.dataset.who === "mom") playMomIntro();
 }));
 $("logoutBtn").onclick = () => signOut(auth);
 
@@ -149,14 +152,17 @@ function tilt(logo, area) {
 tilt($("logo3d"), $("loginView"));
 tilt($("zivLogo"), $("zivIntro"));
 
-// Ziv's Z1V CHANNEL opening plays over the app for a moment; a click skips it.
+// Each person's opening plays over the app for a moment; a click skips it.
+// Ziv: the Z1V CHANNEL logo. Mom: her photo dancing (kept in Firestore, not in this public repo).
 let introTimer;
-function playZivIntro() {
-  const intro = $("zivIntro"), logo = $("zivLogo");
-  logo.classList.remove("idle");
-  logo.style.animation = "none";
-  void logo.offsetWidth; // restart the entrance animation
-  logo.style.animation = "";
+function playIntro(intro, ms, logo) {
+  if (logo) {
+    logo.classList.remove("idle");
+    logo.style.animation = "none";
+    void logo.offsetWidth; // restart the entrance animation
+    logo.style.animation = "";
+  }
+  clearTimeout(introTimer);
   intro.classList.remove("leaving");
   intro.hidden = false;
   const close = () => {
@@ -165,8 +171,49 @@ function playZivIntro() {
     setTimeout(() => (intro.hidden = true), 500);
   };
   intro.onclick = close;
-  introTimer = setTimeout(close, 2600);
+  introTimer = setTimeout(close, ms);
 }
+const playZivIntro = () => playIntro($("zivIntro"), 2600, $("zivLogo"));
+
+const momPhotoRef = () => doc(db, "media", "mom");
+let momPhotoLoaded = null;
+function showMomPhoto(dataUrl) {
+  const d = $("dancer");
+  d.style.setProperty("--photo", dataUrl ? `url("${dataUrl}")` : "none");
+  d.classList.toggle("has-photo", !!dataUrl);
+}
+function playMomIntro() {
+  momPhotoLoaded ||= getDoc(momPhotoRef()).then((snap) => showMomPhoto(snap.data()?.dataUrl)).catch(() => {});
+  const box = $("confetti");
+  const colors = ["#ff4fd8", "#4fd8ff", "#ffe14f", "#7dff6a", "#ff8a3d", "#ffffff"];
+  box.innerHTML = Array.from({ length: 70 }, () =>
+    `<i style="left:${Math.random() * 100}%;background:${colors[Math.floor(Math.random() * colors.length)]};` +
+    `animation-duration:${2.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * 1.5}s"></i>`).join("");
+  playIntro($("momIntro"), 4500);
+}
+
+// Owner: choose the photo for Mom's opening. It is shrunk to a small JPEG so it fits in one Firestore document.
+$("momPhotoBtn").onclick = () => $("momPhotoFile").click();
+$("momPhotoFile").onchange = async (ev) => {
+  const file = ev.target.files[0];
+  ev.target.value = "";
+  if (!file) return;
+  try {
+    const img = await createImageBitmap(file);
+    const scale = Math.min(1, 700 / img.height);
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.width * scale);
+    c.height = Math.round(img.height * scale);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    const dataUrl = c.toDataURL("image/jpeg", 0.85);
+    await setDoc(momPhotoRef(), { dataUrl, updatedAt: serverTimestamp(), updatedBy: user.email });
+    showMomPhoto(dataUrl);
+    momPhotoLoaded = Promise.resolve();
+    playMomIntro();
+  } catch (e) {
+    alert("שמירת התמונה נכשלה: " + e.message);
+  }
+};
 
 onAuthStateChanged(auth, (u) => {
   user = u;

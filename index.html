@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -32,6 +32,20 @@
     <p class="hint-login" id="loginHint" hidden>בבחירה תתבקשו להיכנס עם חשבון Google מורשה</p>
     <p class="err" id="loginErr"></p>
   </div>
+</section>
+
+<!-- Mom's opening: her photo dancing, shown when Mom is chosen -->
+<section id="momIntro" class="splash intro mom-intro" hidden>
+  <div class="disco-beams" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="disco-ball" aria-hidden="true"></div>
+  <div class="dance-floor" aria-hidden="true"></div>
+  <div class="dancer" id="dancer">
+    <div class="slice s1"></div><div class="slice s2"></div><div class="slice s3"></div>
+    <div class="dancer-empty">💃</div>
+  </div>
+  <div class="notes" aria-hidden="true"><i>♪</i><i>♫</i><i>♪</i><i>♬</i><i>♫</i><i>♪</i></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+  <p class="intro-hint">נכנסים לתיק של אמא 💃</p>
 </section>
 
 <!-- Ziv's own opening, shown when Ziv is chosen -->
@@ -65,6 +79,8 @@
       <span class="email" id="userEmail"></span>
       <button class="link" id="switchBtn">🏠 דף הפתיחה</button>
       <button class="link" id="shareBtn" hidden>👥 שיתוף</button>
+      <button class="link" id="momPhotoBtn" hidden>📷 תמונה לפתיח של אמא</button>
+      <input type="file" id="momPhotoFile" accept="image/*" hidden>
       <button class="link" id="logoutBtn">↩️ יציאה</button>
     </div>
   </nav>
@@ -212,6 +228,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=11"></script>
+<script type="module" src="app.js?v=12"></script>
 </body>
 </html>

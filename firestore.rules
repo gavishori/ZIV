@@ -40,6 +40,14 @@ service cloud.firestore {
       allow read, write: if allowed() && docId in ['data', 'mom'];
     }
 
+    // Small images (e.g. the photo for Mom's opening) as data URLs.
+    match /media/{id} {
+      allow read: if allowed();
+      allow write: if allowed() && id in ['mom']
+                   && request.resource.data.dataUrl is string
+                   && request.resource.data.dataUrl.size() < 900000;
+    }
+
     match /access/{email} {
       allow read: if isOwner() || (signedIn() && request.auth.token.email == email);
       allow create, update: if isOwner()
