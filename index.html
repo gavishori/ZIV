@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -23,6 +23,22 @@
       </div>
     </div>
   </div>
+  <div class="slogan" role="img" aria-label="יהלומים בליטוש">
+    <svg class="gem" viewBox="0 0 64 56" aria-hidden="true">
+      <defs>
+        <linearGradient id="gemA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8fbff"/><stop offset=".5" stop-color="#8fd8ff"/><stop offset="1" stop-color="#4a7dff"/></linearGradient>
+        <linearGradient id="gemB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#b48cff"/></linearGradient>
+      </defs>
+      <polygon points="14,2 50,2 64,18 32,56 0,18" fill="url(#gemA)"/>
+      <polygon points="14,2 24,18 0,18" fill="#d9f6ff"/><polygon points="50,2 40,18 64,18" fill="#6fb8ff"/>
+      <polygon points="24,18 40,18 32,56" fill="url(#gemB)"/><polygon points="14,2 50,2 40,18 24,18" fill="#f4fdff"/>
+      <polygon points="0,18 24,18 32,56" fill="#7fc4ff" opacity=".8"/><polygon points="64,18 40,18 32,56" fill="#5a8cff" opacity=".85"/>
+    </svg>
+    <span class="slogan-text" id="sloganText" aria-hidden="true">יהלומים בליטוש</span>
+    <i class="spark" style="--x:-8%;--y:-30%;--d:0s"></i><i class="spark" style="--x:104%;--y:-10%;--d:.7s"></i>
+    <i class="spark" style="--x:30%;--y:110%;--d:1.3s"></i><i class="spark" style="--x:80%;--y:-45%;--d:1.9s"></i>
+  </div>
+  <div class="figures" id="figures" hidden><img id="figImg" alt=""><img class="mirror" id="figMirror" alt="" aria-hidden="true"></div>
   <div class="splash-login">
     <p>במי לצפות?</p>
     <div class="profiles">
@@ -80,6 +96,8 @@
       <button class="link" id="switchBtn">🏠 דף הפתיחה</button>
       <button class="link" id="shareBtn" hidden>👥 שיתוף</button>
       <button class="link" id="momPhotoBtn" hidden>📷 תמונה לפתיח של אמא</button>
+      <button class="link" id="mainPhotoBtn" hidden>🖼️ תמונה לדף הראשי</button>
+      <input type="file" id="mainPhotoFile" accept="image/*" hidden>
       <input type="file" id="momPhotoFile" accept="image/*" hidden>
       <button class="link" id="logoutBtn">↩️ יציאה</button>
     </div>
@@ -228,6 +246,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=12"></script>
+<script type="module" src="app.js?v=13"></script>
 </body>
 </html>
