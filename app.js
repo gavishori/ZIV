@@ -136,31 +136,11 @@ document.querySelectorAll(".who-switch button").forEach((b) => (b.onclick = () =
 }));
 $("logoutBtn").onclick = () => signOut(auth);
 
-// Splash logos: tilt toward the pointer, and float on their own when the pointer rests.
-function tilt(logo, area) {
-  let restTimer;
-  logo.addEventListener("animationend", (e) => { if (e.animationName === "enter") logo.classList.add("idle"); });
-  area.addEventListener("pointermove", (e) => {
-    const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5;
-    logo.classList.remove("idle");
-    logo.style.setProperty("--ry", `${x * 40}deg`);
-    logo.style.setProperty("--rx", `${-y * 30}deg`);
-    clearTimeout(restTimer);
-    restTimer = setTimeout(() => logo.classList.add("idle"), 2500);
-  });
-}
-tilt($("zivLogo"), $("zivIntro"));
-
 // Each person's opening plays over the app for a moment; a click skips it.
-// Ziv: the Z1V CHANNEL logo. Mom: her photo dancing (kept in Firestore, not in this public repo).
+// Both use the same layered 3D lettering as GAVISH: Ziv gets Z1V CHANNEL, Mom her photo and "אמא"
+// (her photo is kept in Firestore, not in this public repo; her face is the fallback).
 let introTimer;
-function playIntro(intro, ms, logo) {
-  if (logo) {
-    logo.classList.remove("idle");
-    logo.style.animation = "none";
-    void logo.offsetWidth; // restart the entrance animation
-    logo.style.animation = "";
-  }
+function playIntro(intro, ms) {
   clearTimeout(introTimer);
   intro.classList.remove("leaving");
   intro.hidden = false;
@@ -172,23 +152,16 @@ function playIntro(intro, ms, logo) {
   intro.onclick = close;
   introTimer = setTimeout(close, ms);
 }
-const playZivIntro = () => playIntro($("zivIntro"), 2600, $("zivLogo"));
+const playZivIntro = () => playIntro($("zivIntro"), 2800);
 
 const momPhotoRef = () => doc(db, "media", "mom");
 let momPhotoLoaded = null;
 function showMomPhoto(dataUrl) {
-  const d = $("dancer");
-  d.style.setProperty("--photo", dataUrl ? `url("${dataUrl}")` : "none");
-  d.classList.toggle("has-photo", !!dataUrl);
+  if (dataUrl) $("momImg").src = dataUrl;
 }
 function playMomIntro() {
   momPhotoLoaded ||= getDoc(momPhotoRef()).then((snap) => showMomPhoto(snap.data()?.dataUrl)).catch(() => {});
-  const box = $("confetti");
-  const colors = ["#ff4fd8", "#4fd8ff", "#ffe14f", "#7dff6a", "#ff8a3d", "#ffffff"];
-  box.innerHTML = Array.from({ length: 70 }, () =>
-    `<i style="left:${Math.random() * 100}%;background:${colors[Math.floor(Math.random() * colors.length)]};` +
-    `animation-duration:${2.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * 1.5}s"></i>`).join("");
-  playIntro($("momIntro"), 4500);
+  playIntro($("momIntro"), 3200);
 }
 
 // Owner: choose the photo for Mom's opening. It is shrunk so it fits in one Firestore document.
@@ -230,6 +203,9 @@ function layered(el, depth = 10) {
 }
 layered($("gavishText"), 14);
 layered($("sloganText"));
+layered($("zivText"), 14);
+layered($("zivText2"));
+layered($("momText"), 14);
 
 onAuthStateChanged(auth, (u) => {
   user = u;

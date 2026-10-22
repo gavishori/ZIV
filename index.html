@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
 
@@ -34,30 +34,24 @@
 
 <!-- Mom's opening: her photo dancing, shown when Mom is chosen -->
 <section id="momIntro" class="splash intro mom-intro" hidden>
-  <div class="disco-beams" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-  <div class="disco-ball" aria-hidden="true"></div>
-  <div class="dance-floor" aria-hidden="true"></div>
-  <div class="dancer" id="dancer">
-    <div class="slice s1"></div><div class="slice s2"></div><div class="slice s3"></div>
-    <div class="dancer-empty">💃</div>
+  <div class="splash-floor" aria-hidden="true"></div>
+  <div class="splash-glow" aria-hidden="true"></div>
+  <div class="slogan3d word3d mom3d" role="img" aria-label="אמא">
+    <div class="slogan-rock"><span class="slogan-word" id="momText" aria-hidden="true">אמא</span></div>
   </div>
-  <div class="notes" aria-hidden="true"><i>♪</i><i>♫</i><i>♪</i><i>♬</i><i>♫</i><i>♪</i></div>
-  <div class="confetti" id="confetti" aria-hidden="true"></div>
-  <p class="intro-hint">נכנסים לתיק של אמא 💃</p>
+  <div class="mom-photo"><img id="momImg" src="assets/face-mom.webp" alt=""></div>
+  <p class="intro-hint">נכנסים לתיק של אמא…</p>
 </section>
 
 <!-- Ziv's own opening, shown when Ziv is chosen -->
 <section id="zivIntro" class="splash intro" hidden>
   <div class="splash-floor" aria-hidden="true"></div>
   <div class="splash-glow" aria-hidden="true"></div>
-  <div class="stage">
-    <div class="logo3d" id="zivLogo" role="img" aria-label="Z1V Channel">
-      <div class="z1v"><span class="depth" aria-hidden="true">Z1V</span><span class="face">Z1V</span></div>
-      <div class="channel">
-        <span data-text="CHANNEL">CHANNEL</span>
-        <div class="keys"></div>
-      </div>
-    </div>
+  <div class="slogan3d word3d gavish3d" role="img" aria-label="Z1V Channel">
+    <div class="slogan-rock"><span class="slogan-word" id="zivText" aria-hidden="true">Z1V</span></div>
+  </div>
+  <div class="slogan3d word3d channel3d" aria-hidden="true">
+    <div class="slogan-rock"><span class="slogan-word" id="zivText2">CHANNEL</span></div>
   </div>
   <p class="intro-hint">נכנסים לתיק של זיו…</p>
 </section>
@@ -226,6 +220,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=16"></script>
+<script type="module" src="app.js?v=17"></script>
 </body>
 </html>

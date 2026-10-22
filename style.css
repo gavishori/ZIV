@@ -336,59 +336,6 @@ td .icon-del { position: static; }
 .share-link .icon-btn svg { width: 20px; height: 20px; }
 #shareList button.danger { padding: 3px 10px; font-size: 13px; }
 
-/* ---- Mom's opening: her photo dancing under a disco ball ---- */
-.mom-intro { background: radial-gradient(ellipse at 50% 30%, #4a1d5e 0%, #1c0b2a 55%, #08030f 100%); gap: 18px; }
-.disco-ball { position: absolute; top: -30px; width: 90px; height: 90px; border-radius: 50%;
-  background: repeating-conic-gradient(#e9e9f5 0 10deg, #8c8ca8 10deg 20deg), radial-gradient(circle at 35% 30%, #fff, #999);
-  background-blend-mode: multiply; box-shadow: 0 0 30px rgba(255, 255, 255, .6), 0 0 80px rgba(255, 120, 220, .5);
-  animation: spin 3s linear infinite; }
-.disco-ball::before { content: ""; position: absolute; left: 50%; top: -400px; height: 400px; width: 2px; background: #aaa; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.disco-beams i { position: absolute; top: 0; left: 50%; width: 140px; height: 120vh; transform-origin: top center; opacity: .22;
-  background: linear-gradient(to bottom, var(--b), transparent 80%); filter: blur(6px); animation: beam 4s ease-in-out infinite alternate; }
-.disco-beams i:nth-child(1) { --b: #ff4fd8; --a: -35deg; }
-.disco-beams i:nth-child(2) { --b: #4fd8ff; --a: 25deg; animation-delay: -1s; }
-.disco-beams i:nth-child(3) { --b: #ffe14f; --a: -10deg; animation-delay: -2s; }
-.disco-beams i:nth-child(4) { --b: #7dff6a; --a: 40deg; animation-delay: -3s; }
-@keyframes beam { from { transform: translateX(-50%) rotate(var(--a)); } to { transform: translateX(-50%) rotate(calc(var(--a) * -1)); } }
-.dance-floor { position: absolute; bottom: 0; left: -20%; right: -20%; height: 34%;
-  background: repeating-conic-gradient(rgba(255, 79, 216, .35) 0 25%, rgba(79, 216, 255, .3) 0 50%) 0 0 / 80px 80px;
-  transform: perspective(400px) rotateX(55deg); transform-origin: bottom; animation: floorflash .9s steps(2) infinite;
-  mask-image: linear-gradient(to top, #000 30%, transparent); }
-@keyframes floorflash { 50% { filter: hue-rotate(120deg) brightness(1.3); } }
-
-/* The photo is cut into three strips (head, body, legs) that sway on alternating beats. */
-.dancer { --w: min(240px, 52vw); --h: calc(var(--w) * 1.57); position: relative; z-index: 2; width: var(--w); height: var(--h);
-  animation: bounce .5s ease-in-out infinite alternate; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .6)); }
-.slice { position: absolute; left: 0; width: 100%; background-image: var(--photo); background-size: var(--w) var(--h);
-  background-repeat: no-repeat; border-radius: 18px; }
-.s1 { top: 0; height: 43%; background-position: 0 0; transform-origin: 50% 100%; animation: head 1s ease-in-out infinite; z-index: 3;
-  border-radius: 18px 18px 6px 6px; }
-.s2 { top: 41%; height: 30%; background-position: 0 calc(var(--h) * -.41); transform-origin: 50% 100%; animation: torso 1s ease-in-out infinite; z-index: 2;
-  border-radius: 6px; }
-.s3 { top: 69%; height: 31%; background-position: 0 calc(var(--h) * -.69); transform-origin: 50% 0; animation: hips 1s ease-in-out infinite; z-index: 1;
-  border-radius: 6px 6px 18px 18px; }
-@keyframes bounce { from { transform: translateY(0) scaleY(1); } to { transform: translateY(-14px) scaleY(1.02); } }
-@keyframes head { 0%, 100% { transform: rotate(-7deg) translateX(-6px); } 50% { transform: rotate(7deg) translateX(6px); } }
-@keyframes torso { 0%, 100% { transform: rotate(4deg) skewX(-3deg); } 50% { transform: rotate(-4deg) skewX(3deg); } }
-@keyframes hips { 0%, 100% { transform: translateX(10px) rotate(-5deg); } 50% { transform: translateX(-10px) rotate(5deg); } }
-.dancer:not(.has-photo) .slice { display: none; }
-.dancer-empty { display: none; font-size: 140px; text-align: center; line-height: var(--h); animation: head 1s ease-in-out infinite; }
-.dancer:not(.has-photo) .dancer-empty { display: block; }
-
-.notes i { position: absolute; bottom: 20%; font-style: normal; font-size: 30px; color: #ffd3f5; text-shadow: 0 0 12px #ff4fd8;
-  animation: note 3.2s ease-in infinite; opacity: 0; }
-.notes i:nth-child(1) { left: 22%; } .notes i:nth-child(2) { left: 72%; animation-delay: .5s; }
-.notes i:nth-child(3) { left: 32%; animation-delay: 1.1s; } .notes i:nth-child(4) { left: 64%; animation-delay: 1.6s; }
-.notes i:nth-child(5) { left: 16%; animation-delay: 2.1s; } .notes i:nth-child(6) { left: 80%; animation-delay: 2.6s; }
-@keyframes note { 0% { opacity: 0; transform: translateY(0) rotate(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-55vh) rotate(25deg); } }
-.confetti i { position: absolute; top: -20px; width: 9px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
-@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
-.mom-intro .intro-hint { font-size: 1.15rem; color: #ffd3f5; }
-@media (prefers-reduced-motion: reduce) {
-  .mom-intro *, .mom-intro .slice { animation: none !important; }
-}
-
 /* ---- main page, centered: GAVISH, the slogan, then Mom | the two of them | Ziv ---- */
 #loginView { overflow: hidden; gap: 14px; justify-content: center; }
 #loginView .z1v.wide { font-size: clamp(44px, 9vw, 112px); }
@@ -454,3 +401,20 @@ td .icon-del { position: static; }
 /* faces in the Mom | Ziv switch */
 .who-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .who-switch img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: 50% 30%; transform: scale(1.1); }
+
+/* ---- openings for Ziv and Mom, in the same layered 3D lettering as GAVISH ---- */
+.intro { gap: 10px; }
+.channel3d .slogan-word { direction: ltr; font: 900 clamp(26px, 5.5vw, 60px) / 1.1 Orbitron, Heebo, sans-serif; letter-spacing: .18em; }
+.channel3d { animation-delay: .5s; }
+.channel3d .slogan-rock { animation-duration: 9s; }
+.mom-intro { background: radial-gradient(ellipse at 50% 35%, #4a2a6e 0%, #1a0f33 55%, #06040f 100%); }
+.mom3d .slogan-word { font: 900 clamp(64px, 14vw, 150px) / 1.05 Heebo, sans-serif; }
+.mom3d .L b:not(:first-child) { color: hsl(285, 45%, calc(58% - var(--k) * 3.5%)); transform: translateZ(calc(var(--k) * -2.2px)); }
+.mom3d .L b:first-child { background-image: linear-gradient(100deg, #fff4fb 0%, #ffc8ec 30%, #ffffff 44%, #ffe9b8 50%, #ffffff 56%, #d9c2ff 70%, #fff4fb 100%); }
+.mom-photo { position: relative; z-index: 1; width: min(250px, 56vw); aspect-ratio: 4 / 5; border-radius: 50% 50% 22px 22px / 40% 40% 22px 22px;
+  overflow: hidden; border: 3px solid rgba(255, 200, 236, .7); animation: fadeup 1s .4s both, momfloat 5s ease-in-out 1.4s infinite;
+  box-shadow: 0 0 0 8px rgba(255, 200, 236, .12), 0 0 50px rgba(255, 140, 210, .45), 0 20px 40px rgba(0, 0, 0, .6); }
+.mom-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+@keyframes momfloat { 50% { transform: translateY(-8px) rotate(-1deg); } }
+.mom-intro .intro-hint { color: #ffd3f5; }
+@media (prefers-reduced-motion: reduce) { .mom-photo { animation: none; } }
