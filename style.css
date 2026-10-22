@@ -298,3 +298,20 @@ td .icon-del { position: static; }
   .ins-row:not(.edit) > span:last-child { grid-column: 2; text-align: left; }
   .ins-row.edit { grid-template-columns: 1fr 1fr; }
 }
+
+/* ---- profile picker on the opening page ---- */
+.splash-login > p:first-child { font-size: 1.1rem; color: #fff; font-weight: 500; }
+.profiles { display: flex; gap: 34px; justify-content: center; perspective: 600px; }
+.profile { display: flex; flex-direction: column; align-items: center; gap: 10px; border: 0; background: transparent; padding: 0; cursor: pointer; }
+.profile:hover { background: transparent; }
+.avatar { width: 104px; height: 104px; border-radius: 26px; display: grid; place-items: center; font-size: 54px;
+  background: linear-gradient(145deg, #2a4a8f, #121c3d); border: 2px solid rgba(140, 190, 255, .35);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .25), 0 0 0 0 rgba(255, 211, 77, 0);
+  transition: transform .25s, box-shadow .25s, border-color .25s; }
+.profile[data-profile=mom] .avatar { background: linear-gradient(145deg, #7a3f95, #2a1440); }
+.profile:hover .avatar, .profile:focus-visible .avatar { transform: translateY(-6px) rotateX(12deg) scale(1.06);
+  border-color: var(--accent); box-shadow: 0 18px 34px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 26px rgba(255, 211, 77, .45); }
+.pname { color: #cfe0ff; font-size: 1.05rem; font-weight: 700; transition: color .2s; }
+.profile:hover .pname { color: #fff; }
+.hint-login { font-size: 12px; color: #8fa6d6; margin-top: 14px !important; }
+@media (max-width: 820px) { .avatar { width: 84px; height: 84px; font-size: 44px; border-radius: 22px; } }

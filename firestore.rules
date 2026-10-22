@@ -33,11 +33,11 @@ service cloud.firestore {
     }
 
     match /investments/{docId} {
-      allow read, write: if allowed() && docId == 'data';
+      allow read, write: if allowed() && docId in ['data', 'mom'];
     }
 
     match /insurance/{docId} {
-      allow read, write: if allowed() && docId == 'data';
+      allow read, write: if allowed() && docId in ['data', 'mom'];
     }
 
     match /access/{email} {

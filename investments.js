@@ -17,11 +17,13 @@ const blankPolicy = () => ({ number: "", product: "", dataDate: "", returnDate: 
 // A policy's own values without its dates, to tell whether it was edited.
 const policyValues = ({ dataDate, returnDate, ...rest }) => JSON.stringify(rest);
 
-export function startInvestments(firestore, currentUser) {
+export function startInvestments(firestore, currentUser, docId = "data") {
   db = firestore;
   user = currentUser;
-  ref = doc(db, "investments", "data");
+  ref = doc(db, "investments", docId);
   if (unsub) unsub();
+  data = draft = null;
+  $("invBody").innerHTML = `<p class="soon">טוען…</p>`;
   unsub = onSnapshot(ref, (snap) => {
     data = snap.exists() ? snap.data() : null;
     if (!draft) render();

@@ -4,8 +4,8 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signO
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
-import { startInvestments, stopInvestments } from "./investments.js?v=3";
-import { startInsurance, stopInsurance } from "./insurance.js?v=1";
+import { startInvestments, stopInvestments } from "./investments.js?v=4";
+import { startInsurance, stopInsurance } from "./insurance.js?v=2";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -52,15 +52,66 @@ function parseDate(v) {
   return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
 }
 
-// ---------- auth ----------
-$("loginBtn").onclick = async () => {
-  $("loginErr").textContent = "";
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-  } catch (e) {
-    $("loginErr").textContent = "הכניסה נכשלה: " + e.message;
-  }
+// ---------- profiles & auth ----------
+// One Google sign-in; on every visit the opening page asks who is entering.
+// Each profile has its own insurance and investments documents; the apartment belongs to Ziv.
+const PROFILES = {
+  ziv: { name: "זיו", icon: "🧑", doc: "data", views: ["fichman", "insurance", "investments"] },
+  mom: { name: "אמא", icon: "👩", doc: "mom", views: ["insurance", "investments"] },
 };
+let profile = null;
+
+function showSplash(err = "") {
+  profile = null;
+  stopAll();
+  $("loginErr").textContent = err;
+  $("loginHint").hidden = !!user;
+  $("appView").hidden = true;
+  $("loginView").hidden = false;
+}
+
+function stopAll() {
+  stopInvestments();
+  stopInsurance();
+  if (unsubEntries) { unsubEntries(); unsubEntries = null; }
+}
+
+function enterProfile(key) {
+  const p = PROFILES[key];
+  profile = key;
+  $("navTitle").textContent = `${p.name} ${p.icon}`;
+  document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.hidden = !p.views.includes(b.dataset.view)));
+  let view = "fichman";
+  try { view = localStorage.getItem(`ziv-view-${key}`) || p.views[0]; } catch {}
+  showView(p.views.includes(view) ? view : p.views[0]);
+  startInvestments(db, user, p.doc);
+  startInsurance(db, user, p.doc);
+  if (p.views.includes("fichman")) {
+    unsubEntries = onSnapshot(entriesCol, (snap) => {
+      entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      render();
+    }, (err) => showSplash(err.code === "permission-denied"
+      ? `לחשבון ${user.email} אין הרשאה. בקשו מהבעלים לשתף אתכם.`
+      : "שגיאה בטעינת הנתונים: " + err.message));
+  }
+  $("loginView").hidden = true;
+  $("appView").hidden = false;
+}
+
+document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
+  $("loginErr").textContent = "";
+  if (!user) {
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (e) {
+      $("loginErr").textContent = "הכניסה נכשלה: " + e.message;
+      return;
+    }
+  }
+  user = auth.currentUser;
+  enterProfile(b.dataset.profile);
+}));
+$("switchBtn").onclick = () => showSplash();
 $("logoutBtn").onclick = () => signOut(auth);
 
 // Splash logo: tilts toward the pointer, and floats on its own when the pointer rests.
@@ -78,45 +129,21 @@ $("logoutBtn").onclick = () => signOut(auth);
   });
 }
 
-onAuthStateChanged(auth, async (u) => {
+onAuthStateChanged(auth, (u) => {
   user = u;
-  if (unsubEntries) { unsubEntries(); unsubEntries = null; }
-  if (!u) {
-    stopInvestments();
-    stopInsurance();
-    $("loginView").hidden = false;
-    $("appView").hidden = true;
-    return;
-  }
-  $("userEmail").textContent = u.email;
-  $("shareBtn").hidden = u.email !== OWNER_EMAIL;
-  startInvestments(db, u);
-  startInsurance(db, u);
-  unsubEntries = onSnapshot(entriesCol, (snap) => {
-    entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    $("loginView").hidden = true;
-    $("appView").hidden = false;
-    render();
-  }, (err) => {
-    stopInvestments();
-    stopInsurance();
-    $("appView").hidden = true;
-    $("loginView").hidden = false;
-    $("loginErr").textContent = err.code === "permission-denied"
-      ? `לחשבון ${u.email} אין הרשאה. בקשו מהבעלים לשתף אתכם.`
-      : "שגיאה בטעינת הנתונים: " + err.message;
-  });
+  $("userEmail").textContent = u?.email || "";
+  $("shareBtn").hidden = u?.email !== OWNER_EMAIL;
+  if (!u || !profile) showSplash();
 });
 
 // ---------- side menu ----------
 function showView(name) {
   if (!document.querySelector(`.view-panel[data-view="${name}"]`)) name = "fichman";
-  document.querySelectorAll("#sideNav > button").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
+  document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".view-panel").forEach((p) => p.classList.toggle("view-active", p.dataset.view === name));
-  try { localStorage.setItem("ziv-view", name); } catch {}
+  try { if (profile) localStorage.setItem(`ziv-view-${profile}`, name); } catch {}
 }
-document.querySelectorAll("#sideNav > button").forEach((b) => (b.onclick = () => showView(b.dataset.view)));
-try { showView(localStorage.getItem("ziv-view") || "fichman"); } catch { showView("fichman"); }
+document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.onclick = () => showView(b.dataset.view)));
 
 const payCell = (e) => !e.pay ? "" :
   esc(PAY_LABELS[e.pay] || e.pay) + (e.payNote ? `<small>${esc(e.payNote)}</small>` : "");

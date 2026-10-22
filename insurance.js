@@ -13,10 +13,12 @@ const monthly = (r) => (Number(r.premium) || 0) / (r.freq === "שנתית" ? 12 
 
 let user, ref, data = null, draft = null, unsub = null;
 
-export function startInsurance(db, currentUser) {
+export function startInsurance(db, currentUser, docId = "data") {
   user = currentUser;
-  ref = doc(db, "insurance", "data");
+  ref = doc(db, "insurance", docId);
   if (unsub) unsub();
+  data = draft = null;
+  $("insBody").innerHTML = `<p class="soon">טוען…</p>`;
   unsub = onSnapshot(ref, (snap) => {
     data = snap.exists() ? snap.data() : null;
     if (!draft) render();

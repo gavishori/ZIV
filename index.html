@@ -7,7 +7,7 @@
 <title>זיו · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -24,20 +24,25 @@
     </div>
   </div>
   <div class="splash-login">
-    <p>כניסה עם חשבון Google מורשה</p>
-    <button class="primary" id="loginBtn">כניסה עם Google</button>
+    <p>מי נכנס?</p>
+    <div class="profiles">
+      <button class="profile" data-profile="mom"><span class="avatar">👩</span><span class="pname">אמא</span></button>
+      <button class="profile" data-profile="ziv"><span class="avatar">🧑</span><span class="pname">זיו</span></button>
+    </div>
+    <p class="hint-login" id="loginHint" hidden>בבחירה תתבקשו להיכנס עם חשבון Google מורשה</p>
     <p class="err" id="loginErr"></p>
   </div>
 </section>
 
 <div class="layout" id="appView" hidden>
   <nav class="side-nav" id="sideNav" aria-label="תפריט ראשי">
-    <div class="side-nav-title">זיו 🏠</div>
+    <div class="side-nav-title" id="navTitle">זיו 🏠</div>
     <button data-view="fichman" class="active">🏢 דירה פיכמן 5</button>
     <button data-view="insurance">🛡️ ביטוחים</button>
     <button data-view="investments">📈 השקעות</button>
     <div class="side-nav-foot">
       <span class="email" id="userEmail"></span>
+      <button class="link" id="switchBtn">🔄 החלפת משתמש</button>
       <button class="link" id="shareBtn" hidden>👥 שיתוף</button>
       <button class="link" id="logoutBtn">↩️ יציאה</button>
     </div>
@@ -179,6 +184,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=7"></script>
+<script type="module" src="app.js?v=8"></script>
 </body>
 </html>
