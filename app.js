@@ -112,19 +112,21 @@ document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
   }
   user = auth.currentUser;
   enterProfile(b.dataset.profile);
+  if (b.dataset.profile === "ziv") playZivIntro();
 }));
 $("switchBtn").onclick = () => showSplash();
 document.querySelectorAll(".who-switch button").forEach((b) => (b.onclick = () => {
-  if (b.dataset.who !== profile) enterProfile(b.dataset.who);
+  if (b.dataset.who === profile) return;
+  enterProfile(b.dataset.who);
+  if (b.dataset.who === "ziv") playZivIntro();
 }));
 $("logoutBtn").onclick = () => signOut(auth);
 
-// Splash logo: tilts toward the pointer, and floats on its own when the pointer rests.
-{
-  const logo = $("logo3d");
+// Splash logos: tilt toward the pointer, and float on their own when the pointer rests.
+function tilt(logo, area) {
   let restTimer;
   logo.addEventListener("animationend", (e) => { if (e.animationName === "enter") logo.classList.add("idle"); });
-  $("loginView").addEventListener("pointermove", (e) => {
+  area.addEventListener("pointermove", (e) => {
     const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5;
     logo.classList.remove("idle");
     logo.style.setProperty("--ry", `${x * 40}deg`);
@@ -132,6 +134,27 @@ $("logoutBtn").onclick = () => signOut(auth);
     clearTimeout(restTimer);
     restTimer = setTimeout(() => logo.classList.add("idle"), 2500);
   });
+}
+tilt($("logo3d"), $("loginView"));
+tilt($("zivLogo"), $("zivIntro"));
+
+// Ziv's Z1V CHANNEL opening plays over the app for a moment; a click skips it.
+let introTimer;
+function playZivIntro() {
+  const intro = $("zivIntro"), logo = $("zivLogo");
+  logo.classList.remove("idle");
+  logo.style.animation = "none";
+  void logo.offsetWidth; // restart the entrance animation
+  logo.style.animation = "";
+  intro.classList.remove("leaving");
+  intro.hidden = false;
+  const close = () => {
+    clearTimeout(introTimer);
+    intro.classList.add("leaving");
+    setTimeout(() => (intro.hidden = true), 500);
+  };
+  intro.onclick = close;
+  introTimer = setTimeout(close, 2600);
 }
 
 onAuthStateChanged(auth, (u) => {

@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>זיו · ניהול</title>
+<title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -15,10 +15,10 @@
   <div class="splash-floor" aria-hidden="true"></div>
   <div class="splash-glow" aria-hidden="true"></div>
   <div class="stage">
-    <div class="logo3d" id="logo3d" role="img" aria-label="Z1V Channel">
-      <div class="z1v"><span class="depth" aria-hidden="true">Z1V</span><span class="face">Z1V</span></div>
-      <div class="channel">
-        <span data-text="CHANNEL">CHANNEL</span>
+    <div class="logo3d" id="logo3d" role="img" aria-label="GAVISH גביש">
+      <div class="z1v wide"><span class="depth" aria-hidden="true">GAVISH</span><span class="face">GAVISH</span></div>
+      <div class="channel he">
+        <span data-text="גביש">גביש</span>
         <div class="keys"></div>
       </div>
     </div>
@@ -32,6 +32,22 @@
     <p class="hint-login" id="loginHint" hidden>בבחירה תתבקשו להיכנס עם חשבון Google מורשה</p>
     <p class="err" id="loginErr"></p>
   </div>
+</section>
+
+<!-- Ziv's own opening, shown when Ziv is chosen -->
+<section id="zivIntro" class="splash intro" hidden>
+  <div class="splash-floor" aria-hidden="true"></div>
+  <div class="splash-glow" aria-hidden="true"></div>
+  <div class="stage">
+    <div class="logo3d" id="zivLogo" role="img" aria-label="Z1V Channel">
+      <div class="z1v"><span class="depth" aria-hidden="true">Z1V</span><span class="face">Z1V</span></div>
+      <div class="channel">
+        <span data-text="CHANNEL">CHANNEL</span>
+        <div class="keys"></div>
+      </div>
+    </div>
+  </div>
+  <p class="intro-hint">נכנסים לתיק של זיו…</p>
 </section>
 
 <div class="layout" id="appView" hidden>
@@ -189,6 +205,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=9"></script>
+<script type="module" src="app.js?v=10"></script>
 </body>
 </html>
