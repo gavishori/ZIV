@@ -121,32 +121,62 @@ fieldset.pay legend { font-size: 14px; padding: 0 4px; }
 .icon-btn:hover { filter: brightness(1.1); }
 
 /* ---- investments ---- */
-#investments h3, [data-view=investments] h3 { margin: 22px 0 10px; font-size: 1.1rem; }
-[data-view=investments] h3 small { color: var(--muted); font-weight: 400; font-size: 13px; }
+[data-view=investments] h3 { margin: 26px 0 10px; font-size: 1.1rem; }
+[data-view=investments] h4 { margin: 18px 0 8px; font-size: 1rem; }
+[data-view=investments] h4 small { color: var(--muted); font-weight: 400; font-size: 13px; }
 .inv-cards { grid-template-columns: repeat(3, 1fr); margin-bottom: 6px; }
-.inv-src { color: var(--muted); font-size: 13px; margin: 0 0 6px; }
-.inv-summary { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.inv-sum-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.inv-src { color: var(--muted); font-size: 13px; margin: 0; }
+
+.kv small { display: block; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+.kv b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+
+.inv-summary { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: rgba(255, 255, 255, 0.05); }
+.inv-sum-row { position: relative; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 16px; align-items: center;
+  padding: 14px 18px; border-bottom: 1px solid var(--line); }
 .inv-sum-row:last-child { border-bottom: 0; }
-.inv-sum-row b { display: block; }
-.inv-sum-row small, .kv small { display: block; color: var(--muted); font-size: 12px; }
-.inv-policy { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
-.inv-policy-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.inv-policy-head .muted, .inv-dates { color: var(--muted); }
-.inv-dates { font-size: 13px; margin: 6px 0 10px; }
+.inv-sum-name b { display: block; }
+.inv-sum-name small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+.inv-policy { position: relative; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 12px; }
+.inv-policy-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.inv-policy-head .muted { color: var(--muted); }
+.inv-dates { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
 .ltr { direction: ltr; unicode-bidi: isolate; }
-.inv-grid { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: flex-end; background: rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 14px; }
-.kv b { font-size: 1.05rem; }
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px 20px;
+  background: rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 12px 16px; margin-top: 12px; }
 .inv-tracks { margin-top: 10px; }
-.inv-tracks summary { cursor: pointer; padding: 6px 0; }
-.inv-in { padding: 4px 8px; border: 1px solid var(--glass-line); border-radius: 6px; background: var(--field); color: var(--field-text); width: 120px; font-size: 14px; }
-.inv-in.wide { width: 260px; max-width: 100%; }
-.inv-in.lbl { width: 140px; display: block; margin-bottom: 2px; }
-button.sm { padding: 4px 10px; font-size: 13px; margin-top: 8px; }
-button.xs { padding: 1px 7px; font-size: 12px; }
+.inv-tracks summary { cursor: pointer; padding: 6px 0; color: var(--muted); }
+.inv-tracks .tablewrap { margin-top: 6px; }
+
+/* edit mode */
+.inv-in { width: 100%; padding: 6px 9px; border: 1px solid var(--glass-line); border-radius: 8px;
+  background: var(--field); color: var(--field-text); font-size: 14px; }
+.inv-in.name { font-weight: 700; }
+.inv-in.polnum { width: 140px; direction: ltr; text-align: right; }
+.inv-in.lbl { font-size: 12px; padding: 3px 8px; margin-bottom: 4px; background: rgba(255, 255, 255, 0.75); }
+.editing .inv-sum-row { padding-inline-end: 44px; }
+.editing .inv-policy { padding-top: 18px; padding-inline-end: 48px; }
+label.inline { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+label.inline.grow { flex: 1; min-width: 220px; }
+.kv-edit { position: relative; padding-inline-end: 22px; }
+.kv-edit .icon-del { position: absolute; inset-inline-end: -4px; top: 0; }
+.editing .inv-tracks td { padding: 4px; }
+.editing .inv-tracks .inv-in { min-width: 80px; }
+
+.icon-del { position: absolute; inset-inline-end: 12px; top: 12px; width: 26px; height: 26px; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(255, 155, 147, 0.5); background: transparent; color: var(--neg); font-size: 12px; line-height: 1; }
+.inv-sum-row .icon-del { top: 50%; transform: translateY(-50%); }
+td .icon-del { position: static; }
+.icon-del:hover { background: rgba(255, 155, 147, 0.18); }
+.add-btn { border: 1px dashed var(--glass-line); background: transparent; color: var(--muted); padding: 6px 14px; margin-top: 10px; font-size: 13px; }
+.add-btn:hover { color: #fff; border-color: #fff; }
+.add-btn.in-grid { margin: 0; align-self: end; }
 #invEditBar { display: inline-flex; gap: 8px; }
+
 @media (max-width: 820px) {
   .inv-cards { grid-template-columns: 1fr 1fr; }
-  .inv-sum-row { grid-template-columns: 1fr 1fr; }
+  .inv-sum-row { grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
   .inv-sum-name { grid-column: 1 / -1; }
+  .inv-grid { grid-template-columns: 1fr 1fr; }
 }

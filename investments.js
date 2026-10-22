@@ -1,17 +1,21 @@
 // Investments page: Phoenix policies summary, stored in Firestore at investments/data
-// (never in this public repo). Group and overall totals are computed from the policies.
+// (never in this public repo). Group and overall totals and dates are computed from the policies.
 import { doc, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const money = (n) => "₪" + Math.round(Number(n) || 0).toLocaleString("he-IL");
 const showDate = (iso) => (iso ? iso.split("-").reverse().join(".") : "");
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const NUM_KEYS = new Set(["total", "liquid", "pension"]);
 const TRACK_COLS = [["name", "שם מסלול"], ["pct", "אחוז מהתיק"], ["ytd", "תשואה שנה נוכחית"], ["feeDeposit", "ד.נ הפקדה"], ["feeSaving", "ד.נ חיסכון"], ["total", "צבירה"]];
 
 let db, user, ref, data = null, draft = null, unsub = null;
+let imported = new WeakSet(); // policies that came from an imported file in this edit session
 
 const blankPolicy = () => ({ number: "", product: "", dataDate: "", returnDate: "", total: 0, liquid: 0, extra: [], tracks: [] });
+// A policy's own values without its dates, to tell whether it was edited.
+const policyValues = ({ dataDate, returnDate, ...rest }) => JSON.stringify(rest);
 
 export function startInvestments(firestore, currentUser) {
   db = firestore;
@@ -36,16 +40,22 @@ function totals(groups) {
     total: gr.policies.reduce((s, p) => s + (Number(p.total) || 0), 0),
     liquid: gr.policies.reduce((s, p) => s + (Number(p.liquid) || 0), 0),
     pension: Number(gr.pension) || 0,
+    // A product type is as fresh as its newest policy.
+    updated: gr.policies.map((p) => p.dataDate || "").sort().pop() || "",
   }));
   const sum = (k) => g.reduce((s, x) => s + x[k], 0);
-  return { groups: g, total: sum("total"), liquid: sum("liquid"), pension: sum("pension") };
+  return { groups: g, total: sum("total"), liquid: sum("liquid"), pension: sum("pension"),
+    asOf: g.map((x) => x.updated).sort().pop() || "" };
 }
 
-// In edit mode every value is an input bound to its path in the draft (e.g. "groups.0.policies.1.total").
-function field(path, value, { type = "text", cls = "" } = {}) {
-  if (!draft) return null;
-  return `<input class="inv-in ${cls}" data-path="${path}" type="${type}" value="${esc(value)}"${type === "number" ? ' step="any"' : ""}>`;
+// In edit mode each editable value is an input bound to its path in the draft
+// (e.g. "groups.0.policies.1.total"). Dates are never edited: they come with the loaded
+// data, and a policy changed by hand is stamped with the day it is saved.
+function field(path, value, { type = "text", cls = "", ph = "" } = {}) {
+  return `<input class="inv-in ${cls}" data-path="${path}" type="${type}" value="${esc(value)}"` +
+    `${type === "number" ? ' step="any" inputmode="decimal"' : ""}${ph ? ` placeholder="${esc(ph)}"` : ""}>`;
 }
+const del = (attrs, title) => `<button type="button" class="icon-del" ${attrs} title="${title}" aria-label="${title}">✕</button>`;
 
 function render() {
   const d = draft || data;
@@ -58,6 +68,7 @@ function render() {
   }
   const t = totals(d.groups || []);
   const edit = !!draft;
+  body.classList.toggle("editing", edit);
 
   const head = `
     <div class="cards inv-cards">
@@ -65,67 +76,72 @@ function render() {
       <div class="card"><span>חיסכון נזיל</span><b>${money(t.liquid)}</b></div>
       <div class="card"><span>קצבה צפויה לגיל פרישה</span><b>${money(t.pension)}</b></div>
     </div>
-    <p class="inv-src">מקור: ${edit ? field("source", d.source) : esc(d.source || "")}
-      · נכון ל-${edit ? field("asOf", d.asOf, { type: "date" }) : showDate(d.asOf)}</p>`;
+    <p class="inv-src">${esc(d.source || "הפניקס")}${t.asOf ? ` · נכון ל-${showDate(t.asOf)}` : ""}</p>`;
 
   const summary = `
     <h3>סכום צבירה לפי סוגי מוצרים</h3>
     <div class="inv-summary">${(d.groups || []).map((g, gi) => `
       <div class="inv-sum-row">
-        <div class="inv-sum-name"><b>${edit ? field(`groups.${gi}.name`, g.name, { cls: "wide" }) : esc(g.name)}</b>
-          <small>מעודכן לתאריך ${edit ? field(`groups.${gi}.updated`, g.updated, { type: "date" }) : showDate(g.updated)}</small></div>
-        <div><b>${money(t.groups[gi].total)}</b><small>סכום חיסכון</small></div>
-        <div><b>${edit ? field(`groups.${gi}.pension`, g.pension || 0, { type: "number" }) : (g.pension ? money(g.pension) : "—")}</b><small>קצבה צפויה לגיל פרישה</small></div>
-        <div><b>${money(t.groups[gi].liquid)}</b><small>חיסכון נזיל</small></div>
-        ${edit ? `<button type="button" class="danger sm" data-act="delGroup" data-gi="${gi}">מחיקת סוג</button>` : ""}
+        <div class="inv-sum-name">
+          ${edit ? field(`groups.${gi}.name`, g.name, { cls: "name", ph: "שם סוג המוצר" }) : `<b>${esc(g.name)}</b>`}
+          ${t.groups[gi].updated ? `<small>מעודכן לתאריך ${showDate(t.groups[gi].updated)}</small>` : ""}
+        </div>
+        <div class="kv"><small>סכום חיסכון</small><b>${money(t.groups[gi].total)}</b></div>
+        <div class="kv"><small>קצבה צפויה לגיל פרישה</small>${edit ? field(`groups.${gi}.pension`, g.pension || 0, { type: "number" }) : `<b>${g.pension ? money(g.pension) : "—"}</b>`}</div>
+        <div class="kv"><small>חיסכון נזיל</small><b>${money(t.groups[gi].liquid)}</b></div>
+        ${edit ? del(`data-act="delGroup" data-gi="${gi}"`, "מחיקת סוג המוצר") : ""}
       </div>`).join("")}
     </div>
-    ${edit ? `<button type="button" class="ghost sm" data-act="addGroup">+ סוג מוצר</button>` : ""}`;
+    ${edit ? `<button type="button" class="add-btn" data-act="addGroup">+ סוג מוצר</button>` : ""}`;
 
   const policies = (d.groups || []).map((g, gi) => `
-    <h3>${esc(g.name)} <small>| ${g.policies.length} ${g.policies.length === 1 ? "פוליסה" : "פוליסות"}</small></h3>
+    <h4>${esc(g.name)} <small>| ${g.policies.length} ${g.policies.length === 1 ? "פוליסה" : "פוליסות"}</small></h4>
     ${g.policies.map((p, pi) => policyCard(p, `groups.${gi}.policies.${pi}`, gi, pi, edit)).join("")}
-    ${edit ? `<button type="button" class="ghost sm" data-act="addPolicy" data-gi="${gi}">+ פוליסה ל${esc(g.name)}</button>` : ""}`).join("");
+    ${edit ? `<button type="button" class="add-btn" data-act="addPolicy" data-gi="${gi}">+ פוליסה</button>` : ""}`).join("");
 
-  body.innerHTML = head + summary + `<h3 class="inv-detail-title">פירוט מוצרים</h3>` + policies;
+  body.innerHTML = head + summary + `<h3>פירוט מוצרים</h3>` + policies;
 }
 
 function policyCard(p, path, gi, pi, edit) {
-  const kv = (label, inner) => `<div class="kv"><small>${label}</small><b>${inner}</b></div>`;
+  const kv = (label, inner) => `<div class="kv"><small>${label}</small>${inner}</div>`;
+  const val = (inner) => `<b>${inner}</b>`;
   const extras = (p.extra || []).map((x, xi) => edit
-    ? `<div class="kv">${field(`${path}.extra.${xi}.label`, x.label, { cls: "lbl" })}${field(`${path}.extra.${xi}.value`, x.value)}
-        <button type="button" class="danger xs" data-act="delExtra" data-path="${path}" data-i="${xi}">✕</button></div>`
-    : kv(esc(x.label), esc(x.value))).join("");
+    ? `<div class="kv kv-edit">${field(`${path}.extra.${xi}.label`, x.label, { cls: "lbl", ph: "שם השדה" })}${field(`${path}.extra.${xi}.value`, x.value, { ph: "ערך" })}
+        ${del(`data-act="delExtra" data-path="${path}" data-i="${xi}"`, "מחיקת השדה")}</div>`
+    : kv(esc(x.label), val(esc(x.value)))).join("");
   const tracks = p.tracks || [];
   const trackTable = (tracks.length || edit) ? `
     <details class="inv-tracks"${edit ? " open" : ""}>
       <summary>פירוט מסלולי ההשקעה בפוליסה</summary>
-      <div class="tablewrap"><table>
+      ${tracks.length ? `<div class="tablewrap"><table>
         <thead><tr>${TRACK_COLS.map(([, l]) => `<th>${l}</th>`).join("")}${edit ? "<th></th>" : ""}</tr></thead>
         <tbody>${tracks.map((tr, ti) => `<tr>${TRACK_COLS.map(([k]) => {
           const v = tr[k] ?? "";
           if (edit) return `<td>${field(`${path}.tracks.${ti}.${k}`, v, { type: k === "total" ? "number" : "text" })}</td>`;
           const cls = k === "ytd" && String(v).trim().startsWith("-") ? "neg" : "";
           return `<td class="${k === "name" ? "" : "num"} ${cls}">${k === "total" ? money(v) : esc(v)}</td>`;
-        }).join("")}${edit ? `<td><button type="button" class="danger xs" data-act="delTrack" data-path="${path}" data-i="${ti}">✕</button></td>` : ""}</tr>`).join("")}</tbody>
-      </table></div>
-      ${edit ? `<button type="button" class="ghost sm" data-act="addTrack" data-path="${path}">+ מסלול</button>` : ""}
+        }).join("")}${edit ? `<td>${del(`data-act="delTrack" data-path="${path}" data-i="${ti}"`, "מחיקת המסלול")}</td>` : ""}</tr>`).join("")}</tbody>
+      </table></div>` : ""}
+      ${edit ? `<button type="button" class="add-btn" data-act="addTrack" data-path="${path}">+ מסלול</button>` : ""}
     </details>` : "";
+  const dates = [p.dataDate && `הנתונים מעודכנים ל-${showDate(p.dataDate)}`, p.returnDate && `התשואה מעודכנת ל-${showDate(p.returnDate)}`]
+    .filter(Boolean).join(" | ");
 
   return `
     <div class="inv-policy">
+      ${edit ? del(`data-act="delPolicy" data-gi="${gi}" data-pi="${pi}"`, "מחיקת הפוליסה") : ""}
       <div class="inv-policy-head">
-        <span>מספר פוליסה <b class="ltr">${edit ? field(`${path}.number`, p.number) : esc(p.number)}</b></span>
-        <span class="muted">| ${edit ? field(`${path}.product`, p.product, { cls: "wide" }) : esc(p.product)}</span>
-        ${edit ? `<button type="button" class="danger sm" data-act="delPolicy" data-gi="${gi}" data-pi="${pi}">מחיקת פוליסה</button>` : ""}
+        ${edit
+          ? `<label class="inline">מספר פוליסה ${field(`${path}.number`, p.number, { cls: "polnum" })}</label>
+             <label class="inline grow">מוצר ${field(`${path}.product`, p.product, { cls: "name" })}</label>`
+          : `<span>מספר פוליסה <b class="ltr">${esc(p.number)}</b></span><span class="muted">| ${esc(p.product)}</span>`}
       </div>
-      <p class="inv-dates">הנתונים מעודכנים ל-${edit ? field(`${path}.dataDate`, p.dataDate, { type: "date" }) : showDate(p.dataDate)}
-        | התשואה מעודכנת ל-${edit ? field(`${path}.returnDate`, p.returnDate, { type: "date" }) : showDate(p.returnDate)}</p>
+      ${dates ? `<p class="inv-dates">${dates}</p>` : ""}
       <div class="inv-grid">
-        ${kv("סכום חיסכון", edit ? field(`${path}.total`, p.total, { type: "number" }) : money(p.total))}
-        ${kv("חיסכון נזיל", edit ? field(`${path}.liquid`, p.liquid, { type: "number" }) : money(p.liquid))}
+        ${kv("סכום חיסכון", edit ? field(`${path}.total`, p.total, { type: "number" }) : val(money(p.total)))}
+        ${kv("חיסכון נזיל", edit ? field(`${path}.liquid`, p.liquid, { type: "number" }) : val(money(p.liquid)))}
         ${extras}
-        ${edit ? `<button type="button" class="ghost sm" data-act="addExtra" data-path="${path}">+ שדה</button>` : ""}
+        ${edit ? `<button type="button" class="add-btn in-grid" data-act="addExtra" data-path="${path}">+ שדה</button>` : ""}
       </div>
       ${trackTable}
     </div>`;
@@ -152,7 +168,7 @@ $("invBody").addEventListener("click", (ev) => {
   const b = ev.target.closest("button[data-act]");
   if (!b || !draft) return;
   const { act, gi, pi, path, i } = b.dataset;
-  if (act === "addGroup") draft.groups.push({ name: "סוג מוצר חדש", updated: "", pension: 0, policies: [] });
+  if (act === "addGroup") draft.groups.push({ name: "", pension: 0, policies: [] });
   if (act === "delGroup" && confirm("למחוק את סוג המוצר וכל הפוליסות שלו?")) draft.groups.splice(gi, 1);
   if (act === "addPolicy") draft.groups[gi].policies.push(blankPolicy());
   if (act === "delPolicy" && confirm("למחוק את הפוליסה?")) draft.groups[gi].policies.splice(pi, 1);
@@ -164,13 +180,25 @@ $("invBody").addEventListener("click", (ev) => {
 });
 
 $("invEditBtn").onclick = () => {
-  draft = structuredClone(data || { source: "הפניקס", asOf: "", groups: [] });
+  draft = structuredClone(data || { source: "הפניקס", groups: [] });
+  imported = new WeakSet();
   render();
 };
 $("invCancelBtn").onclick = () => { draft = null; render(); };
 $("invSaveBtn").onclick = async () => {
   try {
-    const { updatedAt, updatedBy, ...clean } = draft;
+    const { updatedAt, updatedBy, asOf, ...clean } = draft;
+    // Imported policies keep their own dates; a policy changed by hand gets today's date.
+    const before = new Map((data?.groups || []).flatMap((g) => g.policies).map((p) => [p.number, policyValues(p)]));
+    for (const g of clean.groups) {
+      delete g.updated;
+      for (const p of g.policies) {
+        if (!imported.has(p) && before.get(p.number) !== policyValues(p)) {
+          p.dataDate = today();
+          p.returnDate = "";
+        }
+      }
+    }
     await setDoc(ref, { ...clean, updatedAt: serverTimestamp(), updatedBy: user.email });
     draft = null;
     render();
@@ -179,7 +207,7 @@ $("invSaveBtn").onclick = async () => {
   }
 };
 
-// One-off load of a JSON file with the same shape (kept outside the repo).
+// Load a JSON file with the same shape (kept outside the repo); its dates are kept as is.
 $("invImportBtn").onclick = () => $("invImportFile").click();
 $("invImportFile").onchange = async (ev) => {
   const file = ev.target.files[0];
@@ -189,6 +217,7 @@ $("invImportFile").onchange = async (ev) => {
     const parsed = JSON.parse(await file.text());
     if (!Array.isArray(parsed.groups)) throw new Error("חסר groups");
     draft = parsed;
+    imported = new WeakSet(parsed.groups.flatMap((g) => g.policies || []));
     render();
   } catch (e) {
     alert("הקובץ לא תקין: " + e.message);
