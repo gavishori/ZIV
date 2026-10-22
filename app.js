@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDocs,
+import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
 import { startInvestments, stopInvestments } from "./investments.js?v=4";
@@ -111,6 +111,17 @@ document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
     }
   }
   user = auth.currentUser;
+  // Only the owner and the emails on the share list may enter.
+  if (user.email !== OWNER_EMAIL) {
+    let ok = false;
+    try { ok = (await getDoc(doc(db, "access", user.email.toLowerCase()))).exists(); } catch {}
+    if (!ok) {
+      const email = user.email;
+      await signOut(auth);
+      $("loginErr").textContent = `החשבון ${email} לא מורשה. בקשו ממנהל האתר להוסיף אותו בשיתוף.`;
+      return;
+    }
+  }
   enterProfile(b.dataset.profile);
   if (b.dataset.profile === "ziv") playZivIntro();
 }));
@@ -399,6 +410,15 @@ async function renderShares() {
     `<li><span>${esc(d.id)}</span><button type="button" class="danger" data-email="${esc(d.id)}">הסרה</button></li>`).join("")
     || "<li>עדיין לא שותף עם אף אחד.</li>";
 }
+// The link is just the site's address: access is decided by the signed-in email.
+const SHARE_URL = location.origin + location.pathname;
+const SHARE_TEXT = `הוזמנת לצפות בתיק של משפחת גביש. נכנסים עם חשבון ה-Google שלך: ${SHARE_URL}`;
+$("shareUrl").value = SHARE_URL;
+$("shareWa").href = "https://wa.me/?text=" + encodeURIComponent(SHARE_TEXT);
+$("shareCopy").onclick = async () => {
+  try { await navigator.clipboard.writeText(SHARE_URL); } catch { $("shareUrl").select(); document.execCommand("copy"); }
+  toast("הקישור הועתק");
+};
 $("shareBtn").onclick = async () => {
   $("shareDlg").showModal();
   try { await renderShares(); } catch (e) { $("shareList").innerHTML = `<li>${esc(e.message)}</li>`; }
@@ -409,6 +429,7 @@ $("shareAdd").onclick = async () => {
   await setDoc(doc(accessCol, email), { addedAt: serverTimestamp(), addedBy: user.email });
   $("shareEmail").value = "";
   await renderShares();
+  toast(`${email} נוסף. שלחו לו את הקישור`);
 };
 $("shareList").onclick = async (ev) => {
   const email = ev.target.dataset?.email;
