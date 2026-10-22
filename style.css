@@ -180,3 +180,4 @@ td .icon-del { position: static; }
   .inv-sum-name { grid-column: 1 / -1; }
   .inv-grid { grid-template-columns: 1fr 1fr; }
 }
+.inv-agent { margin-bottom: 16px; }
