@@ -315,3 +315,9 @@ td .icon-del { position: static; }
 .profile:hover .pname { color: #fff; }
 .hint-login { font-size: 12px; color: #8fa6d6; margin-top: 14px !important; }
 @media (max-width: 820px) { .avatar { width: 84px; height: 84px; font-size: 44px; border-radius: 22px; } }
+
+/* ---- whose information: switch in the side menu ---- */
+.who-switch { display: flex; background: rgba(0, 0, 0, .2); border: 1px solid var(--glass-line); border-radius: 12px; padding: 3px; gap: 3px; }
+.who-switch button { flex: 1; border: 0; background: transparent; color: var(--muted); border-radius: 9px; padding: 8px 6px; font-weight: 500; }
+.who-switch button.on { background: var(--accent); color: #1e3c72; font-weight: 700; }
+@media (max-width: 820px) { .who-switch { max-width: 280px; margin: 0 auto; } }

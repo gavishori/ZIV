@@ -53,8 +53,9 @@ function parseDate(v) {
 }
 
 // ---------- profiles & auth ----------
-// One Google sign-in; on every visit the opening page asks who is entering.
-// Each profile has its own insurance and investments documents; the apartment belongs to Ziv.
+// One Google sign-in; on every visit the opening page asks whose information to view,
+// and the side menu switches between them. Each person has their own insurance and
+// investments documents; the apartment belongs to Ziv.
 const PROFILES = {
   ziv: { name: "זיו", icon: "🧑", doc: "data", views: ["fichman", "insurance", "investments"] },
   mom: { name: "אמא", icon: "👩", doc: "mom", views: ["insurance", "investments"] },
@@ -78,8 +79,9 @@ function stopAll() {
 
 function enterProfile(key) {
   const p = PROFILES[key];
+  stopAll();
   profile = key;
-  $("navTitle").textContent = `${p.name} ${p.icon}`;
+  document.querySelectorAll(".who-switch button").forEach((b) => b.classList.toggle("on", b.dataset.who === key));
   document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.hidden = !p.views.includes(b.dataset.view)));
   let view = "fichman";
   try { view = localStorage.getItem(`ziv-view-${key}`) || p.views[0]; } catch {}
@@ -112,6 +114,9 @@ document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
   enterProfile(b.dataset.profile);
 }));
 $("switchBtn").onclick = () => showSplash();
+document.querySelectorAll(".who-switch button").forEach((b) => (b.onclick = () => {
+  if (b.dataset.who !== profile) enterProfile(b.dataset.who);
+}));
 $("logoutBtn").onclick = () => signOut(auth);
 
 // Splash logo: tilts toward the pointer, and floats on its own when the pointer rests.
