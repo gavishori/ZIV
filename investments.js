@@ -27,6 +27,7 @@ export function startInvestments(firestore, currentUser, docId = "data") {
   unsub = onSnapshot(ref, (snap) => {
     data = snap.exists() ? snap.data() : null;
     if (!draft) render();
+    window.dispatchEvent(new CustomEvent("ziv:data", { detail: { kind: "investments", data } }));
   }, (err) => {
     $("invBody").innerHTML = `<p class="err">שגיאה בטעינת ההשקעות: ${esc(err.message)}</p>`;
   });

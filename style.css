@@ -502,3 +502,26 @@ button.linklike { border: 0; background: none; padding: 0; color: #9fc2ff; text-
   #loginView.home .home-slogan .slogan-word { font-size: clamp(24px, min(7vw, 5vh), 52px); }
 }
 .home-grid { overflow: hidden; }
+
+/* ---- insights: a short, current picture of the portfolio ---- */
+.snap-date { color: var(--muted); font-size: 13px; }
+.ins-snap { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.snap-card { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .05)); border: 1px solid var(--glass-line); }
+.snap-icon { position: absolute; top: 12px; left: 14px; font-size: 26px; opacity: .9; }
+.snap-label { color: var(--muted); font-size: 13px; }
+.snap-value { font-size: clamp(24px, 3vw, 32px); direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
+.snap-card small { color: var(--muted); font-size: 12.5px; }
+.snap-h { margin: 22px 0 10px; font-size: 1.05rem; }
+.snap-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.snap-notes li { position: relative; padding: 10px 14px 10px 14px; padding-inline-start: 38px; border-radius: 12px;
+  background: rgba(255, 255, 255, .06); border: 1px solid var(--line); line-height: 1.45; }
+.snap-notes li::before { position: absolute; inset-inline-start: 12px; top: 10px; font-size: 15px; }
+.snap-notes li.warn { border-color: rgba(255, 211, 77, .45); }
+.snap-notes li.warn::before { content: "⚠️"; }
+.snap-notes li.info::before { content: "ℹ️"; }
+.snap-notes li.good { border-color: rgba(127, 224, 168, .4); }
+.snap-notes li.good::before { content: "✅"; }
+.snap-foot { color: var(--muted); font-size: 12px; margin-top: 14px; }
+.snap-card small span, .snap-notes b { unicode-bidi: isolate; }
+.snap-card small span { direction: ltr; display: inline-block; }

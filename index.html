@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
 
@@ -88,7 +88,8 @@
         <button role="tab" data-who="ziv"><img src="assets/face-ziv.webp" alt=""> זיו</button>
       </div>
     </div>
-    <button data-view="fichman" class="active">🏢 דירה פיכמן 5</button>
+    <button data-view="insights" class="active">💡 תובנות</button>
+    <button data-view="fichman">🏢 דירה פיכמן 5</button>
     <button data-view="insurance">🛡️ ביטוחים</button>
     <button data-view="investments">📈 השקעות</button>
     <div class="side-nav-foot">
@@ -101,7 +102,12 @@
     </div>
   </nav>
 
-  <main class="panel view-panel view-active" data-view="fichman">
+  <main class="panel view-panel view-active" data-view="insights">
+    <div class="panel-head"><h2>💡 תמונת מצב</h2><span class="snap-date" id="insightDate"></span></div>
+    <div id="insightBody"><p class="soon">טוען…</p></div>
+  </main>
+
+  <main class="panel view-panel" data-view="fichman">
     <div class="panel-head">
       <h2>🏢 דירה פיכמן 5 · הוצאות והכנסות</h2>
       <div class="head-actions">
@@ -244,6 +250,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=23"></script>
+<script type="module" src="app.js?v=24"></script>
 </body>
 </html>

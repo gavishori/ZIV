@@ -23,6 +23,7 @@ export function startInsurance(db, currentUser, docId = "data") {
   unsub = onSnapshot(ref, (snap) => {
     data = snap.exists() ? snap.data() : null;
     if (!draft) render();
+    window.dispatchEvent(new CustomEvent("ziv:data", { detail: { kind: "insurance", data } }));
   }, (err) => {
     $("insBody").innerHTML = `<p class="err">שגיאה בטעינת הביטוחים: ${esc(err.message)}</p>`;
   });

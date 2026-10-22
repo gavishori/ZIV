@@ -5,8 +5,9 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signI
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
-import { startInvestments, stopInvestments } from "./investments.js?v=4";
-import { startInsurance, stopInsurance } from "./insurance.js?v=3";
+import { startInvestments, stopInvestments } from "./investments.js?v=5";
+import { startInsurance, stopInsurance } from "./insurance.js?v=4";
+import { resetInsights } from "./insights.js?v=1";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -58,8 +59,8 @@ function parseDate(v) {
 // and the side menu switches between them. Each person has their own insurance and
 // investments documents; the apartment belongs to Ziv.
 const PROFILES = {
-  ziv: { name: "זיו", icon: "🧑", doc: "data", views: ["fichman", "insurance", "investments"] },
-  mom: { name: "אמא", icon: "👩", doc: "mom", views: ["insurance", "investments"] },
+  ziv: { name: "זיו", icon: "🧑", doc: "data", views: ["insights", "fichman", "insurance", "investments"] },
+  mom: { name: "אמא", icon: "👩", doc: "mom", views: ["insights", "insurance", "investments"] },
 };
 let profile = null;
 
@@ -85,15 +86,16 @@ function enterProfile(key) {
   document.querySelectorAll(".who-switch button").forEach((b) => b.classList.toggle("on", b.dataset.who === key));
   $("momPhotoBtn").hidden = !(key === "mom" && user?.email === OWNER_EMAIL);
   document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.hidden = !p.views.includes(b.dataset.view)));
-  let view = "fichman";
-  try { view = localStorage.getItem(`ziv-view-${key}`) || p.views[0]; } catch {}
-  showView(p.views.includes(view) ? view : p.views[0]);
+  // Every portfolio opens on its insights.
+  resetInsights(key);
+  showView("insights");
   startInvestments(db, user, p.doc);
   startInsurance(db, user, p.doc);
   if (p.views.includes("fichman")) {
     unsubEntries = onSnapshot(entriesCol, (snap) => {
       entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       render();
+      window.dispatchEvent(new CustomEvent("ziv:data", { detail: { kind: "entries", data: entries } }));
     }, (err) => showSplash(err.code === "permission-denied"
       ? `לחשבון ${user.email} אין הרשאה. בקשו מהבעלים לשתף אתכם.`
       : "שגיאה בטעינת הנתונים: " + err.message));
@@ -298,7 +300,7 @@ onAuthStateChanged(auth, (u) => {
 
 // ---------- side menu ----------
 function showView(name) {
-  if (!document.querySelector(`.view-panel[data-view="${name}"]`)) name = "fichman";
+  if (!document.querySelector(`.view-panel[data-view="${name}"]`)) name = "insights";
   document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".view-panel").forEach((p) => p.classList.toggle("view-active", p.dataset.view === name));
   try { if (profile) localStorage.setItem(`ziv-view-${profile}`, name); } catch {}
