@@ -5,9 +5,9 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signI
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
-import { startInvestments, stopInvestments } from "./investments.js?v=5";
-import { startInsurance, stopInsurance } from "./insurance.js?v=4";
-import { resetInsights } from "./insights.js?v=1";
+import { startInvestments, stopInvestments } from "./investments.js?v=6";
+import { startInsurance, stopInsurance } from "./insurance.js?v=5";
+import { resetInsights } from "./insights.js?v=2";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

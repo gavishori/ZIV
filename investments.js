@@ -131,7 +131,7 @@ function policyCard(p, path, gi, pi, edit) {
     .filter(Boolean).join(" | ");
 
   return `
-    <div class="inv-policy">
+    <div class="inv-policy" data-number="${esc(p.number)}">
       ${edit ? del(`data-act="delPolicy" data-gi="${gi}" data-pi="${pi}"`, "מחיקת הפוליסה") : ""}
       <div class="inv-policy-head">
         ${edit

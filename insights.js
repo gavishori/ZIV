@@ -39,11 +39,11 @@ function insuranceInsights(ins) {
   const rows = (ins.categories || []).flatMap((c) => c.sections.flatMap((s) => s.rows.map((r) => ({ ...r, section: s.name }))));
   if (!rows.length) return out;
   const monthly = rows.reduce((s, r) => s + monthlyOf(r), 0);
-  out.cards.push({ icon: "🛡️", label: "ביטוחים בחודש", value: money(monthly), sub: `${rows.length} פוליסות · ${money(monthly * 12)} בשנה` });
+  out.cards.push({ go: { view: "insurance" }, icon: "🛡️", label: "ביטוחים בחודש", value: money(monthly), sub: `${rows.length} פוליסות · ${money(monthly * 12)} בשנה` });
 
   const top = [...rows].sort((a, b) => monthlyOf(b) - monthlyOf(a))[0];
   if (top && monthly && monthlyOf(top) / monthly > 0.3) {
-    out.notes.push({ level: "warn", text: `<b>${esc(coverKey(top.type))}</b> (${esc(top.company)}) הוא ${Math.round(monthlyOf(top) / monthly * 100)}% מכל הביטוחים: ${money(monthlyOf(top))} בחודש` });
+    out.notes.push({ go: { view: "insurance", types: [top.type] }, level: "warn", text: `<b>${esc(coverKey(top.type))}</b> (${esc(top.company)}) הוא ${Math.round(monthlyOf(top) / monthly * 100)}% מכל הביטוחים: ${money(monthlyOf(top))} בחודש` });
   }
 
   // The same coverage bought more than once usually pays out only once.
@@ -55,11 +55,11 @@ function insuranceInsights(ins) {
   }
   const dups = Object.entries(groups).filter(([, g]) => g.length > 1).sort((a, b) => b[1].length - a[1].length);
   if (dups.length) {
-    out.notes.push({ level: "warn", text: `כיסויים כפולים: ${dups.slice(0, 4).map(([k, g]) => `<b>${esc(k)}</b> ×${g.length}`).join(", ")}. לבדוק עם הסוכנת אם צריך את כולם` });
+    out.notes.push({ go: { view: "insurance", keys: dups.slice(0, 4).map(([k]) => k) }, level: "warn", text: `כיסויים כפולים: ${dups.slice(0, 4).map(([k, g]) => `<b>${esc(k)}</b> ×${g.length}`).join(", ")}. לבדוק עם הסוכנת אם צריך את כולם` });
   }
   const nursing = rows.filter((r) => /סיעוד/.test(r.section));
   if (nursing.length > 2) {
-    out.notes.push({ level: "info", text: `${nursing.length} פוליסות סיעוד, ${money(nursing.reduce((s, r) => s + monthlyOf(r), 0))} בחודש` });
+    out.notes.push({ go: { view: "insurance", section: "ביטוח סיעודי" }, level: "info", text: `${nursing.length} פוליסות סיעוד, ${money(nursing.reduce((s, r) => s + monthlyOf(r), 0))} בחודש` });
   }
 
   // Coming up: renewals within 4 months, and coverage that ends within 8 years.
@@ -69,17 +69,17 @@ function insuranceInsights(ins) {
   const yearly = rows.filter((r) => isYearly(r.period)).map((r) => ({ r, end: periodEnd(r.period) }))
     .filter((x) => x.end - now >= 120 * DAY).sort((a, b) => a.end - b.end);
   if (yearly.length) {
-    out.notes.push({ level: "info", text: `חידושים שנתיים: ${yearly.slice(0, 3).map(({ r, end }) => `<b>${esc(coverKey(r.type))}</b> ${end.toLocaleDateString("he-IL")}`).join(" · ")}. כדאי להשוות מחירים לפני` });
+    out.notes.push({ go: { view: "insurance", types: yearly.slice(0, 3).map(({ r }) => r.type) }, level: "info", text: `חידושים שנתיים: ${yearly.slice(0, 3).map(({ r, end }) => `<b>${esc(coverKey(r.type))}</b> ${end.toLocaleDateString("he-IL")}`).join(" · ")}. כדאי להשוות מחירים לפני` });
   }
   for (const { r, end } of soon.slice(0, 3)) {
-    out.notes.push({ level: "warn", text: `מתחדש בקרוב: <b>${esc(coverKey(r.type))}</b> (${esc(r.company)}) ב-${end.toLocaleDateString("he-IL")}` });
+    out.notes.push({ go: { view: "insurance", types: [r.type] }, level: "warn", text: `מתחדש בקרוב: <b>${esc(coverKey(r.type))}</b> (${esc(r.company)}) ב-${end.toLocaleDateString("he-IL")}` });
   }
   const ending = rows.map((r) => ({ r, end: periodEnd(r.period) }))
     .filter((x) => x.end && x.end - now >= 120 * DAY && x.end - now < 8 * 365 * DAY && monthlyOf(x.r) > 0 && !isYearly(x.r.period))
     .sort((a, b) => a.end - b.end);
   if (ending.length) {
     const { r, end } = ending[0];
-    out.notes.push({ level: "info", text: `<b>${esc(coverKey(r.type))}</b> (${esc(r.company)}) מסתיים ב-${end.getFullYear()}` });
+    out.notes.push({ go: { view: "insurance", types: [r.type] }, level: "info", text: `<b>${esc(coverKey(r.type))}</b> (${esc(r.company)}) מסתיים ב-${end.getFullYear()}` });
   }
   return out;
 }
@@ -100,21 +100,21 @@ function investmentInsights(inv) {
     for (const t of p.tracks || []) if (t.ytd !== "" && !isNaN(pct(t.ytd))) add(pct(t.ytd), Number(t.total) || 0);
   }
   if (w) ytd = acc / w;
-  out.cards.push({ icon: "📈", label: "חיסכון והשקעות", value: money(total),
+  out.cards.push({ go: { view: "investments" }, icon: "📈", label: "חיסכון והשקעות", value: money(total),
     sub: ytd == null ? `${money(liquid)} נזיל` : `<span class="${ytd < 0 ? "neg" : "pos"}">${ytd >= 0 ? "+" : ""}${ytd.toFixed(2)}%</span> מתחילת השנה` });
   if (ytd != null) {
-    out.notes.push({ level: ytd < 0 ? "warn" : "good", text: `התשואה מתחילת השנה <b>${ytd >= 0 ? "+" : ""}${ytd.toFixed(2)}%</b>, בערך ${ytd >= 0 ? "רווח" : "הפסד"} של ${money(Math.abs(gain))}` });
+    out.notes.push({ go: { view: "investments", sel: ".inv-cards" }, level: ytd < 0 ? "warn" : "good", text: `התשואה מתחילת השנה <b>${ytd >= 0 ? "+" : ""}${ytd.toFixed(2)}%</b>, בערך ${ytd >= 0 ? "רווח" : "הפסד"} של ${money(Math.abs(gain))}` });
   }
-  if (total && liquid / total > 0.9) out.notes.push({ level: "info", text: `${Math.round(liquid / total * 100)}% מהכסף נזיל (אפשר למשוך)` });
+  if (total && liquid / total > 0.9) out.notes.push({ go: { view: "investments", sel: ".inv-cards" }, level: "info", text: `${Math.round(liquid / total * 100)}% מהכסף נזיל (אפשר למשוך)` });
   // Management fees from the accumulation
   for (const p of pols) {
     const fee = (p.extra || []).find((x) => /ד\.נ/.test(x.label) && /(צבירה|חיסכון)/.test(x.label) && !/משתנים|קבועים/.test(x.label));
-    if (fee && pct(fee.value) >= 0.7) out.notes.push({ level: "info", text: `דמי ניהול ${esc(fee.value)} מהצבירה ב-${esc(p.product || p.number)}: כ-${money((Number(p.total) || 0) * pct(fee.value) / 100)} בשנה` });
+    if (fee && pct(fee.value) >= 0.7) out.notes.push({ go: { view: "investments", policies: [p.number] }, level: "info", text: `דמי ניהול ${esc(fee.value)} מהצבירה ב-${esc(p.product || p.number)}: כ-${money((Number(p.total) || 0) * pct(fee.value) / 100)} בשנה` });
   }
   const stocks = pols.flatMap((p) => p.extra || []).filter((x) => /^מניות/.test(x.label)).reduce((s, x) => s + (pct(x.value) || 0), 0);
-  if (stocks >= 50) out.notes.push({ level: "info", text: `${Math.round(stocks)}% מההשקעה במניות: הערך עולה ויורד יותר` });
+  if (stocks >= 50) out.notes.push({ go: { view: "investments", policies: pols.filter((p) => (p.extra || []).some((x) => /^מניות/.test(x.label))).map((p) => p.number) }, level: "info", text: `${Math.round(stocks)}% מההשקעה במניות: הערך עולה ויורד יותר` });
   const newest = pols.map((p) => p.dataDate || "").sort().pop();
-  if (newest && Date.now() - new Date(newest) > 60 * DAY) out.notes.push({ level: "warn", text: `נתוני ההשקעות מ-${newest.split("-").reverse().join(".")}. כדאי לעדכן` });
+  if (newest && Date.now() - new Date(newest) > 60 * DAY) out.notes.push({ go: { view: "investments", sel: ".inv-src" }, level: "warn", text: `נתוני ההשקעות מ-${newest.split("-").reverse().join(".")}. כדאי לעדכן` });
   return out;
 }
 
@@ -125,16 +125,16 @@ function apartmentInsights(entries) {
   const income = ledger.filter((e) => e.amount > 0).reduce((s, e) => s + e.amount, 0);
   const expense = ledger.filter((e) => e.amount < 0).reduce((s, e) => s + e.amount, 0);
   const tenant = entries.filter((e) => e.kind === "tenant").reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  out.cards.push({ icon: "🏢", label: "דירה פיכמן 5", value: money(income + expense), sub: `הכנסות ${money(income)} · הוצאות ${money(-expense)}` });
+  out.cards.push({ go: { view: "fichman" }, icon: "🏢", label: "דירה פיכמן 5", value: money(income + expense), sub: `הכנסות ${money(income)} · הוצאות ${money(-expense)}` });
   const rents = ledger.filter((e) => e.amount > 0 && /שכ/.test(e.desc + e.cat));
-  if (rents.length) out.notes.push({ level: "good", text: `שכ״ד: ${rents.length} תשלומים, ${money(rents.reduce((s, e) => s + e.amount, 0))}` });
+  if (rents.length) out.notes.push({ go: { view: "fichman", tab: "ledger", search: "שכ" }, level: "good", text: `שכ״ד: ${rents.length} תשלומים, ${money(rents.reduce((s, e) => s + e.amount, 0))}` });
   const lastRent = rents.map((e) => e.date).filter(Boolean).sort().pop();
   if (lastRent && Date.now() - new Date(lastRent) > 40 * DAY) {
-    out.notes.push({ level: "warn", text: `התשלום האחרון של שכ״ד שנרשם: ${lastRent.split("-").reverse().join(".")}. לבדוק אם הגיע תשלום חדש` });
+    out.notes.push({ go: { view: "fichman", tab: "ledger", search: "שכ" }, level: "warn", text: `התשלום האחרון של שכ״ד שנרשם: ${lastRent.split("-").reverse().join(".")}. לבדוק אם הגיע תשלום חדש` });
   }
-  out.notes.push({ level: "info", text: `השוכרים שילמו דרכנו ועד, מים וחשמל: ${money(tenant)}` });
+  out.notes.push({ go: { view: "fichman", tab: "tenant" }, level: "info", text: `השוכרים שילמו דרכנו ועד, מים וחשמל: ${money(tenant)}` });
   const open = entries.filter((e) => e.open);
-  if (open.length) out.notes.push({ level: "warn", text: `${open.length === 1 ? "דבר אחד פתוח" : `${open.length} דברים פתוחים`} בדירה: ${open.slice(0, 2).map((e) => esc(String(e.desc).slice(0, 40))).join(" · ")}` });
+  if (open.length) out.notes.push({ go: { view: "fichman", tab: open[0].kind, openOnly: true }, level: "warn", text: `${open.length === 1 ? "דבר אחד פתוח" : `${open.length} דברים פתוחים`} בדירה: ${open.slice(0, 2).map((e) => esc(String(e.desc).slice(0, 40))).join(" · ")}` });
   return out;
 }
 
@@ -155,12 +155,54 @@ function render() {
     body.innerHTML = `<p class="soon">${loading ? "טוען…" : "עדיין אין נתונים. מוסיפים אותם בלשוניות הביטוחים וההשקעות."}</p>`;
     return;
   }
+  shown = { cards, notes };
   body.innerHTML = `
-    <div class="ins-snap">${cards.map((c) => `
-      <div class="snap-card"><span class="snap-icon">${c.icon}</span><span class="snap-label">${c.label}</span>
+    <div class="ins-snap">${cards.map((c, i) => `
+      <div class="snap-card go" data-card="${i}" role="button" tabindex="0"><span class="snap-icon">${c.icon}</span><span class="snap-label">${c.label}</span>
         <b class="snap-value">${c.value}</b><small>${c.sub}</small></div>`).join("")}
     </div>
     <h3 class="snap-h">מה חשוב לדעת</h3>
-    <ul class="snap-notes">${notes.map((n) => `<li class="${n.level}">${n.text}</li>`).join("")}</ul>
+    <ul class="snap-notes">${notes.map((n, i) => `<li class="${n.level}${n.go ? " go" : ""}" data-note="${i}"${n.go ? ' role="button" tabindex="0"' : ""}>${n.text}</li>`).join("")}</ul>
     <p class="snap-foot">מחושב מהנתונים בלשוניות. אלה עובדות לבדיקה עם הסוכנות, לא המלצה.</p>`;
 }
+
+// ---------- click an insight: open its tab and point at the right rows ----------
+let shown = { cards: [], notes: [] };
+
+function go(dest) {
+  if (!dest) return;
+  document.querySelector(`#sideNav > button[data-view="${dest.view}"]`)?.click();
+  if (dest.view === "fichman") {
+    document.querySelector(`.tabs button[data-tab="${dest.tab || "ledger"}"]`)?.click();
+    const search = $("search"), openOnly = $("openOnly");
+    search.value = dest.search || "";
+    openOnly.checked = !!dest.openOnly;
+    search.dispatchEvent(new Event("input"));
+    openOnly.dispatchEvent(new Event("change"));
+  }
+  // Let the tab draw first, then highlight what the insight talks about.
+  setTimeout(() => {
+    document.querySelectorAll(".flash").forEach((e) => e.classList.remove("flash"));
+    let els = [];
+    const insRows = () => [...document.querySelectorAll(".ins-row[data-type]")];
+    if (dest.types) els = insRows().filter((e) => dest.types.includes(e.dataset.type));
+    if (dest.keys) els = insRows().filter((e) => dest.keys.includes(coverKey(e.dataset.type)));
+    if (dest.section) els = insRows().filter((e) => e.dataset.section === dest.section);
+    if (dest.policies) els = [...document.querySelectorAll(".inv-policy[data-number]")].filter((e) => dest.policies.includes(e.dataset.number));
+    if (dest.sel) els = [...document.querySelectorAll(`.view-panel[data-view="${dest.view}"] ${dest.sel}`)];
+    if (dest.view === "fichman" && (dest.search || dest.openOnly || dest.tab)) els = [...document.querySelectorAll("#rows tr")];
+    const panel = document.querySelector(`.view-panel[data-view="${dest.view}"]`);
+    (els[0] || panel)?.scrollIntoView({ behavior: "smooth", block: els[0] ? "center" : "start" });
+    for (const e of els) e.classList.add("flash");
+    setTimeout(() => els.forEach((e) => e.classList.remove("flash")), 2600);
+  }, 60);
+}
+
+$("insightBody").addEventListener("click", (ev) => {
+  const n = ev.target.closest("[data-note]"), c = ev.target.closest("[data-card]");
+  if (n) go(shown.notes[n.dataset.note]?.go);
+  else if (c) go(shown.cards[c.dataset.card]?.go);
+});
+$("insightBody").addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter" && ev.target.matches("[data-note], [data-card]")) ev.target.click();
+});

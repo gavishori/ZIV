@@ -85,7 +85,7 @@ function render() {
         <div class="ins-row ins-th"><span>סוג</span><span>תקופת הביטוח</span><span>פרמיה</span><span>מס׳ פוליסה</span><span>חברה</span></div>
         ${c.sections.map((s, si) => `
           <div class="ins-sec">${esc(s.name)} <small>${s.rows.length}</small></div>
-          ${s.rows.map((r, ri) => row(r, `categories.${ci}.sections.${si}.rows.${ri}`, ci, si, ri, edit)).join("")}
+          ${s.rows.map((r, ri) => row({ ...r, section: s.name }, `categories.${ci}.sections.${si}.rows.${ri}`, ci, si, ri, edit)).join("")}
           ${edit ? `<button type="button" class="add-btn" data-act="addRow" data-ci="${ci}" data-si="${si}">+ פוליסה ל${esc(s.name)}</button>` : ""}`).join("")}
       </div>
     </section>`).join("");
@@ -109,7 +109,7 @@ function row(r, path, ci, si, ri, edit) {
       <button type="button" class="icon-del" data-act="delRow" data-ci="${ci}" data-si="${si}" data-ri="${ri}" title="מחיקת הפוליסה" aria-label="מחיקת הפוליסה">✕</button>
     </div>`;
   }
-  return `<div class="ins-row">
+  return `<div class="ins-row" data-type="${esc(r.type)}" data-section="${esc(r.section || "")}">
     <span class="ins-type">${esc(r.type)}${r.note ? `<small>${esc(r.note)}</small>` : ""}</span>
     <span class="ins-period" data-label="תקופה">${esc(r.period)}</span>
     <span class="ins-prem" data-label="פרמיה"><b>${money(r.premium)}</b><small>${esc(r.freq || "חודשית")}</small></span>
