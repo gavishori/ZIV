@@ -149,7 +149,6 @@ function tilt(logo, area) {
     restTimer = setTimeout(() => logo.classList.add("idle"), 2500);
   });
 }
-tilt($("logo3d"), $("loginView"));
 tilt($("zivLogo"), $("zivIntro"));
 
 // Each person's opening plays over the app for a moment; a click skips it.
@@ -222,12 +221,15 @@ photoPicker("momPhotoBtn", "momPhotoFile", "mom", 700, "image/jpeg", (url) => {
   momPhotoLoaded = Promise.resolve();
   playMomIntro();
 });
-// The slogan: each letter is a stack of layers (real 3D depth) riding a wave.
-const DEPTH = 10;
-$("sloganText").innerHTML = [...$("sloganText").textContent].map((ch, i) => ch === " "
-  ? '<span class="sp"> </span>'
-  : `<span class="L" style="--i:${i}">${Array.from({ length: DEPTH }, (_, k) =>
-      `<b style="--k:${k}"${k ? ' aria-hidden="true"' : ""}>${ch}</b>`).join("")}</span>`).join("");
+// GAVISH and the slogan: each letter is a stack of layers (real 3D depth) riding a wave.
+function layered(el, depth = 10) {
+  el.innerHTML = [...el.textContent].map((ch, i) => ch === " "
+    ? '<span class="sp"> </span>'
+    : `<span class="L" style="--i:${i}">${Array.from({ length: depth }, (_, k) =>
+        `<b style="--k:${k}"${k ? ' aria-hidden="true"' : ""}>${ch}</b>`).join("")}</span>`).join("");
+}
+layered($("gavishText"), 14);
+layered($("sloganText"));
 
 onAuthStateChanged(auth, (u) => {
   user = u;

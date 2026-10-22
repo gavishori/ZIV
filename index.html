@@ -7,21 +7,15 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 
 <section id="loginView" class="splash" hidden>
   <div class="splash-floor" aria-hidden="true"></div>
   <div class="splash-glow" aria-hidden="true"></div>
-  <div class="stage">
-    <div class="logo3d" id="logo3d" role="img" aria-label="GAVISH גביש">
-      <div class="z1v wide"><span class="depth" aria-hidden="true">GAVISH</span><span class="face">GAVISH</span></div>
-      <div class="channel he">
-        <span data-text="גביש">גביש</span>
-        <div class="keys"></div>
-      </div>
-    </div>
+  <div class="slogan3d gavish3d" role="img" aria-label="GAVISH">
+    <div class="slogan-rock"><span class="slogan-word" id="gavishText" aria-hidden="true">GAVISH</span></div>
   </div>
   <div class="slogan3d" role="img" aria-label="יהלומים בליטוש">
     <div class="slogan-rock"><span class="slogan-word" id="sloganText" aria-hidden="true">יהלומים בליטוש</span></div>
@@ -72,8 +66,8 @@
   <nav class="side-nav" id="sideNav" aria-label="תפריט ראשי">
     <div class="side-nav-title">
       <div class="who-switch" role="tablist" aria-label="במי לצפות">
-        <button role="tab" data-who="mom">👩 אמא</button>
-        <button role="tab" data-who="ziv">🧑 זיו</button>
+        <button role="tab" data-who="mom"><img src="assets/face-mom.webp" alt=""> אמא</button>
+        <button role="tab" data-who="ziv"><img src="assets/face-ziv.webp" alt=""> זיו</button>
       </div>
     </div>
     <button data-view="fichman" class="active">🏢 דירה פיכמן 5</button>
@@ -232,6 +226,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=15"></script>
+<script type="module" src="app.js?v=16"></script>
 </body>
 </html>

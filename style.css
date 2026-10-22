@@ -443,3 +443,14 @@ td .icon-del { position: static; }
 .ins-type small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
 .inv-in.note-in { margin-top: 4px; font-size: 12px; padding: 3px 8px; }
 .co.hachshara { color: #d4202a; }
+
+/* GAVISH in the same layered 3D style as the slogan, bigger and in Orbitron */
+.gavish3d { animation: fadeup 1s .2s both; }
+.gavish3d .slogan-word { direction: ltr; font: 900 clamp(52px, 11vw, 132px) / 1.1 Orbitron, Heebo, sans-serif; letter-spacing: .04em; }
+.gavish3d .L { animation-duration: 3.2s; }
+.gavish3d .L b:not(:first-child) { transform: translateZ(calc(var(--k) * -2.2px)); }
+.gavish3d .slogan-rock { animation-duration: 9s; animation-direction: reverse; }
+.gavish3d::after { bottom: -18px; height: 22px; }
+/* faces in the Mom | Ziv switch */
+.who-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.who-switch img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: 50% 30%; transform: scale(1.1); }
