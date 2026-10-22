@@ -7,40 +7,51 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
-<section id="loginView" class="splash" hidden>
+<section id="loginView" class="splash home" hidden>
   <div class="splash-floor" aria-hidden="true"></div>
   <div class="splash-glow" aria-hidden="true"></div>
-  <div class="slogan3d gavish3d" role="img" aria-label="GAVISH">
-    <div class="slogan-rock"><span class="slogan-word" id="gavishText" aria-hidden="true">GAVISH</span></div>
-  </div>
-  <div class="slogan3d" role="img" aria-label="יהלומים בליטוש">
-    <div class="slogan-rock"><span class="slogan-word" id="sloganText" aria-hidden="true">יהלומים בליטוש</span></div>
-  </div>
-  <div class="splash-login">
-    <p>במי לצפות?</p>
-    <div class="family">
-      <button class="profile" data-profile="mom"><span class="avatar"><img src="assets/face-mom.webp" alt=""></span><span class="pname">אמא</span></button>
+  <div class="home-grid">
+    <div class="home-figures">
       <div class="figures" aria-hidden="true"><img src="assets/family.webp" alt=""><img class="mirror" src="assets/family.webp" alt=""></div>
-      <button class="profile" data-profile="ziv"><span class="avatar"><img src="assets/face-ziv.webp" alt=""></span><span class="pname">זיו</span></button>
     </div>
-    <form class="pw-form" id="pwForm" hidden>
-      <p class="pw-title">כניסה עם סיסמה שקיבלתם ממנהל האתר</p>
-      <div class="pw-row">
-        <input type="email" id="pwEmail" placeholder="מייל" autocomplete="username" dir="ltr" required>
-        <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr" required>
-        <button class="primary" type="submit">כניסה</button>
+    <div class="home-main">
+      <div class="slogan3d gavish3d" role="img" aria-label="GAVISH">
+        <div class="slogan-rock"><span class="slogan-word" id="gavishText" aria-hidden="true">GAVISH</span></div>
       </div>
-      <p class="hint-login"><button type="button" class="linklike" id="pwReset">שכחתי סיסמה</button> · בלי סיסמה? בוחרים למעלה במי לצפות ונכנסים עם Google</p>
-    </form>
-    <p class="err" id="loginErr"></p>
-    <div class="inapp-note" id="inAppNote" hidden>
-      <b>כדי להיכנס, פתחו את הקישור בכרום או בספארי.</b>
-      <span>Google לא מאפשר כניסה מתוך הדפדפן של וואטסאפ / פייסבוק. אפשר ללחוץ על ⋮ למעלה ולבחור "פתיחה בדפדפן".</span>
-      <div class="row"><a class="icon-link" id="inAppChrome" hidden>פתיחה בכרום</a><button type="button" class="ghost" id="inAppCopy">📋 העתקת הקישור</button></div>
+      <div class="slogan3d home-slogan" role="img" aria-label="יהלומים בליטוש">
+        <div class="slogan-rock"><span class="slogan-word" id="sloganText" aria-hidden="true">יהלומים בליטוש</span></div>
+      </div>
+      <div class="splash-login">
+        <p class="who-q">במי לצפות?</p>
+        <div class="profiles" id="profiles">
+          <button class="profile" data-profile="mom"><span class="avatar"><img src="assets/face-mom.webp" alt=""></span><span class="pname">אמא</span></button>
+          <button class="profile" data-profile="ziv"><span class="avatar"><img src="assets/face-ziv.webp" alt=""></span><span class="pname">זיו</span></button>
+        </div>
+        <div class="login-card">
+          <form class="pw-form" id="pwForm" hidden>
+            <p class="pw-title">כניסה עם מייל וסיסמה</p>
+            <input type="email" id="pwEmail" placeholder="מייל" autocomplete="username" dir="ltr" required>
+            <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr" required>
+            <button class="primary" type="submit">אישור</button>
+            <p class="hint-login"><button type="button" class="linklike" id="pwReset">שכחתי סיסמה</button> · או בוחרים במי לצפות ונכנסים עם Google</p>
+          </form>
+          <div class="pw-ok" id="pwOk" hidden>
+            <svg class="check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M14 27 l8 8 l16 -17"/></svg>
+            <div><b>מחובר/ת</b><span id="pwOkEmail" dir="ltr"></span>
+              <button type="button" class="linklike" id="pwOut">החלפת חשבון</button></div>
+          </div>
+          <p class="err" id="loginErr"></p>
+        </div>
+        <div class="inapp-note" id="inAppNote" hidden>
+          <b>כדי להיכנס, פתחו את הקישור בכרום או בספארי.</b>
+          <span>Google לא מאפשר כניסה מתוך הדפדפן של וואטסאפ / פייסבוק. אפשר ללחוץ על ⋮ למעלה ולבחור "פתיחה בדפדפן".</span>
+          <div class="row"><a class="icon-link" id="inAppChrome" hidden>פתיחה בכרום</a><button type="button" class="ghost" id="inAppCopy">📋 העתקת הקישור</button></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -233,6 +244,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=22"></script>
+<script type="module" src="app.js?v=23"></script>
 </body>
 </html>

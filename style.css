@@ -453,3 +453,52 @@ button.linklike { border: 0; background: none; padding: 0; color: #9fc2ff; text-
 /* the floor reflection shows only the feet, so it doesn't make the page scroll */
 .figures .mirror { height: 22%; width: 100%; object-fit: cover; object-position: 50% 100%;
   mask-image: linear-gradient(to top, rgba(0, 0, 0, .9), transparent); -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, .9), transparent); }
+
+/* ===== opening page, redesigned to fit the screen =====
+   Wide screens: the two figures on one side, title + choice + sign-in card on the other.
+   Narrow / tall screens: one column. Sizes follow both the width and the height. */
+#loginView.home { display: block; padding: 0; gap: 0; overflow-x: hidden; overflow-y: auto; }
+.home-grid { position: relative; z-index: 1; box-sizing: border-box; min-height: 100%; display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; gap: 3vw; padding: 3vh 5vw; }
+.home-figures { display: flex; justify-content: center; align-items: center; }
+#loginView.home .figures { height: min(82vh, 680px); }
+.home-main { display: flex; flex-direction: column; align-items: center; gap: min(2.2vh, 18px); text-align: center; }
+#loginView.home .gavish3d .slogan-word { font-size: clamp(40px, min(7.6vw, 13vh), 132px); }
+#loginView.home .home-slogan .slogan-word { font-size: clamp(24px, min(3.6vw, 6.4vh), 58px); }
+.who-q { margin: min(1vh, 8px) 0 6px; font-size: clamp(15px, 2.2vh, 19px); font-weight: 500; color: #fff; }
+.profiles { display: flex; justify-content: center; gap: clamp(20px, 3vw, 44px); }
+#loginView.home .avatar { width: clamp(64px, 12vh, 104px); height: clamp(64px, 12vh, 104px); }
+
+.login-card { width: min(380px, 88vw); margin: min(2vh, 16px) auto 0; padding: 14px 16px; border-radius: 16px; box-sizing: border-box;
+  background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .16); backdrop-filter: blur(8px); }
+.login-card .pw-form { width: 100%; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.login-card .pw-title { margin: 0; font-size: 14px; font-weight: 700; color: #fff; text-align: center; }
+.login-card input { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .94); color: #1d2330; text-align: left; font-size: 15px; }
+.login-card button.primary { width: 100%; padding: 10px; font-size: 15px; }
+.login-card .hint-login { margin: 0 !important; font-size: 12px; text-align: center; }
+.login-card .err { margin: 8px 0 0; font-size: 13px; }
+.login-card .err:empty { display: none; }
+
+/* signed in: a green check that draws itself */
+.pw-ok { display: flex; align-items: center; justify-content: center; gap: 12px; animation: fadeup .5s both; }
+.pw-ok > div { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.pw-ok b { color: #7fe0a8; font-size: 16px; }
+.pw-ok span { color: #cfe0ff; font-size: 13px; }
+.pw-ok .linklike { font-size: 12px; }
+.check { width: 46px; height: 46px; flex: none; }
+.check circle { fill: rgba(46, 204, 113, .15); stroke: #2ecc71; stroke-width: 3; stroke-dasharray: 151; stroke-dashoffset: 151; animation: draw .6s ease-out forwards; }
+.check path { fill: none; stroke: #2ecc71; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .4s .5s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.profiles.pick-now .avatar { animation: pickme 1s ease-in-out 3; }
+
+@media (max-width: 900px), (max-aspect-ratio: 1/1) {
+  .home-grid { display: flex; flex-direction: column; justify-content: center; gap: min(1.6vh, 12px); padding: 2.5vh 16px; }
+  .home-main { display: contents; }
+  .gavish3d { order: 1; } .home-slogan { order: 2; } .home-figures { order: 3; } .splash-login { order: 4; }
+  #loginView.home .figures { height: min(28vh, 300px); }
+  #loginView.home .gavish3d .slogan-word { font-size: clamp(40px, min(13vw, 9vh), 110px); }
+  #loginView.home .home-slogan .slogan-word { font-size: clamp(24px, min(7vw, 5vh), 52px); }
+}
+.home-grid { overflow: hidden; }

@@ -67,7 +67,7 @@ function showSplash(err = "") {
   profile = null;
   stopAll();
   $("loginErr").textContent = err;
-  $("pwForm").hidden = !!user;
+  syncLoginBox();
   $("appView").hidden = true;
   $("loginView").hidden = false;
 }
@@ -134,18 +134,26 @@ Object.assign(AUTH_ERRORS, {
 // Email + password, for people the owner created a user for in the Firebase console.
 // The form is always shown while signed out; picking a person signs in with it when it is filled,
 // and with Google when it is empty.
+// While signed out the card shows the form; once signed in (password or Google) a green check.
+function syncLoginBox() {
+  const u = auth.currentUser;
+  $("pwForm").hidden = !!u;
+  $("pwOk").hidden = !u;
+  $("pwOkEmail").textContent = u?.email || "";
+}
 $("pwForm").onsubmit = async (ev) => {
   ev.preventDefault();
   $("loginErr").textContent = "";
   try {
     await signInWithEmailAndPassword(auth, $("pwEmail").value.trim(), $("pwPass").value);
     $("pwPass").value = "";
-    toast("נכנסת בהצלחה. עכשיו בחרו במי לצפות");
-    document.querySelector(".family").classList.add("pick-now");
+    syncLoginBox();
+    $("profiles").classList.add("pick-now");
   } catch (e) {
     $("loginErr").textContent = authError(e);
   }
 };
+$("pwOut").onclick = () => signOut(auth);
 $("pwReset").onclick = async () => {
   const email = $("pwEmail").value.trim();
   if (!email) { $("loginErr").textContent = "כתבו את המייל ואז לחצו שוב על \"שכחתי סיסמה\"."; return; }
@@ -284,6 +292,7 @@ onAuthStateChanged(auth, (u) => {
   user = u;
   $("userEmail").textContent = u?.email || "";
   $("shareBtn").hidden = u?.email !== OWNER_EMAIL;
+  syncLoginBox();
   if (!u || !profile) showSplash();
 });
 
