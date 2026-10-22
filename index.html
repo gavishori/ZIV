@@ -89,10 +89,10 @@
     <div class="panel-head">
       <h2>📈 השקעות וחסכונות</h2>
       <div class="head-actions">
+        <button class="ghost" id="invImportBtn">ייבוא קובץ נתונים</button>
+        <input type="file" id="invImportFile" accept=".json" hidden>
         <button class="ghost" id="invEditBtn">✏️ עריכה</button>
         <span id="invEditBar" hidden>
-          <button class="ghost" id="invImportBtn">ייבוא קובץ נתונים</button>
-          <input type="file" id="invImportFile" accept=".json" hidden>
           <button class="ghost" id="invCancelBtn">ביטול</button>
           <button class="primary" id="invSaveBtn">שמירה</button>
         </span>
@@ -156,6 +156,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=4"></script>
+<script type="module" src="app.js?v=5"></script>
 </body>
 </html>

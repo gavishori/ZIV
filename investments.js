@@ -185,7 +185,8 @@ $("invEditBtn").onclick = () => {
   render();
 };
 $("invCancelBtn").onclick = () => { draft = null; render(); };
-$("invSaveBtn").onclick = async () => {
+$("invSaveBtn").onclick = () => save();
+async function save() {
   try {
     const { updatedAt, updatedBy, asOf, ...clean } = draft;
     // Imported policies keep their own dates; a policy changed by hand gets today's date.
@@ -202,10 +203,17 @@ $("invSaveBtn").onclick = async () => {
     await setDoc(ref, { ...clean, updatedAt: serverTimestamp(), updatedBy: user.email });
     draft = null;
     render();
+    showToast("נשמר");
   } catch (e) {
     alert("השמירה נכשלה: " + e.message);
   }
-};
+}
+function showToast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.hidden = false;
+  setTimeout(() => (t.hidden = true), 2500);
+}
 
 // Load a JSON file with the same shape (kept outside the repo); its dates are kept as is.
 $("invImportBtn").onclick = () => $("invImportFile").click();
@@ -216,10 +224,17 @@ $("invImportFile").onchange = async (ev) => {
   try {
     const parsed = JSON.parse(await file.text());
     if (!Array.isArray(parsed.groups)) throw new Error("חסר groups");
+    // An import is saved right away, so the data stays until the next update.
+    if (data && !confirm("הנתונים מהקובץ יחליפו את הנתונים השמורים. להמשיך?")) return;
     draft = parsed;
     imported = new WeakSet(parsed.groups.flatMap((g) => g.policies || []));
-    render();
+    await save();
   } catch (e) {
     alert("הקובץ לא תקין: " + e.message);
   }
 };
+
+// Don't lose unsaved edits by closing or reloading the page.
+window.addEventListener("beforeunload", (ev) => {
+  if (draft) ev.preventDefault();
+});

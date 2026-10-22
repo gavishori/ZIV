@@ -4,7 +4,7 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signO
 import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, getDocs,
   writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
-import { startInvestments, stopInvestments } from "./investments.js?v=2";
+import { startInvestments, stopInvestments } from "./investments.js?v=3";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
