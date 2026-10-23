@@ -86,7 +86,7 @@ function enterProfile(key) {
   stopAll();
   profile = key;
   document.querySelectorAll(".who-switch button").forEach((b) => b.classList.toggle("on", b.dataset.who === key));
-  $("momPhotoBtn").hidden = !(key === "mom" && user?.email === OWNER_EMAIL);
+  momPhotoBtn.hidden = !(key === "mom" && user?.email === OWNER_EMAIL);
   document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.hidden = !p.views.includes(b.dataset.view)));
   // Every portfolio opens on its insights.
   resetInsights(key);
@@ -214,6 +214,18 @@ document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
   if (b.dataset.profile === "mom") playMomIntro();
 }));
 $("switchBtn").onclick = () => showSplash();
+
+// Sharing and the opening photo are the owner's alone: for anyone else the buttons are taken out
+// of the page altogether (the rules also refuse their writes).
+const shareBtn = $("shareBtn"), momPhotoBtn = $("momPhotoBtn"), momPhotoFile = $("momPhotoFile");
+const navFoot = document.querySelector(".side-nav-foot");
+function placeOwnerButtons(isOwner) {
+  for (const el of [shareBtn, momPhotoBtn, momPhotoFile]) {
+    if (!isOwner) el.remove();
+    else if (!el.isConnected) navFoot.appendChild(el);
+  }
+  shareBtn.hidden = !isOwner;
+}
 document.querySelectorAll(".who-switch button").forEach((b) => (b.onclick = () => {
   if (b.dataset.who === profile) return;
   enterProfile(b.dataset.who);
@@ -261,8 +273,8 @@ async function shrinkPhoto(file, maxH, type, quality) {
   return c.toDataURL(type, quality);
 }
 function photoPicker(btn, input, id, maxH, type, after) {
-  $(btn).onclick = () => $(input).click();
-  $(input).onchange = async (ev) => {
+  btn.onclick = () => input.click();
+  input.onchange = async (ev) => {
     const file = ev.target.files[0];
     ev.target.value = "";
     if (!file) return;
@@ -275,7 +287,7 @@ function photoPicker(btn, input, id, maxH, type, after) {
     }
   };
 }
-photoPicker("momPhotoBtn", "momPhotoFile", "mom", 700, "image/webp", (url) => {
+photoPicker(momPhotoBtn, momPhotoFile, "mom", 700, "image/webp", (url) => {
   showMomPhoto(url);
   momPhotoLoaded = Promise.resolve();
   playMomIntro();
@@ -296,7 +308,7 @@ layered($("momText"), 14);
 onAuthStateChanged(auth, (u) => {
   user = u;
   $("userEmail").textContent = u?.email || "";
-  $("shareBtn").hidden = u?.email !== OWNER_EMAIL;
+  placeOwnerButtons(u?.email === OWNER_EMAIL);
   syncLoginBox();
   if (!u || !profile) showSplash();
 });
@@ -546,7 +558,7 @@ $("shareCopy").onclick = async () => {
   try { await navigator.clipboard.writeText(SHARE_URL); } catch { $("shareUrl").select(); document.execCommand("copy"); }
   toast("הקישור הועתק");
 };
-$("shareBtn").onclick = async () => {
+shareBtn.onclick = async () => {
   $("shareDlg").showModal();
   try { await renderShares(); } catch (e) { $("shareList").innerHTML = `<li>${esc(e.message)}</li>`; }
 };
