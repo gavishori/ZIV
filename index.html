@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=34">
+<link rel="stylesheet" href="style.css?v=35">
 </head>
 <body>
 
@@ -109,14 +109,15 @@
 
   <main class="panel view-panel" data-view="fichman">
     <div class="panel-head">
-      <h2>🏢 דירה פיכמן 5 · הוצאות והכנסות</h2>
+      <h2>🏢 דירה פיכמן 5</h2>
       <div class="head-actions">
         <button class="ghost" id="exportBtn">ייצוא לאקסל</button>
         <button class="ghost" id="importBtn">ייבוא מאקסל</button>
         <input type="file" id="importFile" accept=".xlsx,.xls" hidden>
       </div>
     </div>
-
+    <nav class="apt-tabs" id="aptTabs" aria-label="נושאים בדירה"></nav>
+    <div id="aptOverview">
     <div class="cards">
       <div class="card"><span>תשלומי דיירים</span><b id="sumTenant">0</b></div>
       <div class="card"><span>הכנסות</span><b id="sumIncome" class="pos">0</b></div>
@@ -150,6 +151,8 @@
       </table>
       <p class="empty" id="emptyMsg" hidden>אין רשומות. אפשר להוסיף, או לייבא את קובץ האקסל הקיים.</p>
     </div>
+    </div>
+    <div id="aptTopic" hidden></div>
   </main>
 
   <main class="panel view-panel" data-view="insurance">
@@ -247,9 +250,21 @@
   </form>
 </dialog>
 
+
+<dialog id="docDlg" class="doc-dlg">
+  <div class="doc-head">
+    <h2 id="docTitle"></h2>
+    <span class="grow"></span>
+    <a class="ghost btnlike" id="docOpen" target="_blank" rel="noopener">פתיחה בחלון</a>
+    <a class="ghost btnlike" id="docDownload">⬇️ הורדה</a>
+    <button class="ghost" id="docClose">סגירה</button>
+  </div>
+  <div class="doc-body" id="docBody"></div>
+</dialog>
+
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=27"></script>
+<script type="module" src="app.js?v=28"></script>
 </body>
 </html>

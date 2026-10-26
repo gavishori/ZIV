@@ -52,6 +52,28 @@ service cloud.firestore {
                    && request.resource.data.dataUrl.size() < 900000;
     }
 
+    // Apartment documents: metadata in files/{id}, content in fileChunks/{id}_{i}. A private one
+    // ("רק לי") is readable only by the owner; anyone allowed may upload, only the owner deletes.
+    function canSee(d) {
+      return allowed() && (d.private == false || isOwner());
+    }
+    match /files/{id} {
+      allow read: if canSee(resource.data);
+      allow create: if allowed()
+                    && request.resource.data.keys().hasOnly(['name', 'type', 'size', 'cat', 'chunks', 'private', 'uploadedAt', 'uploadedBy'])
+                    && request.resource.data.private is bool
+                    && request.resource.data.chunks is int && request.resource.data.chunks <= 40
+                    && request.resource.data.size is int && request.resource.data.size <= 15728640;
+      allow update, delete: if isOwner();
+    }
+    match /fileChunks/{id} {
+      allow read: if canSee(resource.data);
+      allow create: if allowed()
+                    && request.resource.data.keys().hasOnly(['fileId', 'i', 'private', 'data'])
+                    && request.resource.data.private is bool;
+      allow delete: if isOwner();
+    }
+
     // The owner's own documents (extra tabs and their answers): nobody else, not even shared users.
     match /owner/{docId} {
       allow read, write: if isOwner();

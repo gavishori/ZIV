@@ -8,14 +8,16 @@ const money = (n) => "₪" + Math.round(Number(n) || 0).toLocaleString("he-IL");
 const pct = (s) => parseFloat(String(s).replace(/[^\d.\-]/g, ""));
 const DAY = 864e5;
 
-let state = { profile: null, insurance: undefined, investments: undefined, entries: undefined };
+let state = { profile: null, insurance: undefined, investments: undefined, entries: undefined, files: undefined, topics: [] };
 
 export function resetInsights(profile) {
-  state = { profile, insurance: undefined, investments: undefined, entries: profile === "ziv" ? undefined : null };
+  const apt = profile === "ziv" ? undefined : null;
+  state = { profile, insurance: undefined, investments: undefined, entries: apt, files: apt, topics: [] };
   render();
 }
 window.addEventListener("ziv:data", (e) => {
   state[e.detail.kind] = e.detail.data;
+  if (e.detail.topics) state.topics = e.detail.topics;
   render();
 });
 
@@ -133,6 +135,26 @@ function apartmentInsights(entries) {
     out.notes.push({ go: { view: "fichman", tab: "ledger", search: "שכ" }, level: "warn", text: `התשלום האחרון של שכ״ד שנרשם: ${lastRent.split("-").reverse().join(".")}. לבדוק אם הגיע תשלום חדש` });
   }
   out.notes.push({ go: { view: "fichman", tab: "tenant" }, level: "info", text: `השוכרים שילמו דרכנו ועד, מים וחשמל: ${money(tenant)}` });
+  // Bills paid for the tenants, per month: total over the months from the first bill to the last.
+  const monthsSpan = (rows) => {
+    const ds = rows.map((r) => r.date).filter(Boolean).sort();
+    if (!ds.length) return 0;
+    const [a, b] = [ds[0], ds[ds.length - 1]].map((d) => +d.slice(0, 4) * 12 + +d.slice(5, 7));
+    return b - a + 1;
+  };
+  const perMonth = [];
+  for (const t of state.topics.filter((t) => ["power", "water", "vaad"].includes(t.id))) {
+    const rows = entries.filter((e) => e.kind === "tenant" && t.match(e) && Number(e.amount) > 0);
+    const m = monthsSpan(rows);
+    if (rows.length && m) perMonth.push(`<b>${t.name}</b> ${money(rows.reduce((s, r) => s + Number(r.amount), 0) / m)}`);
+  }
+  if (perMonth.length) out.notes.push({ go: { view: "fichman", sub: "power" }, level: "info", text: `חשבונות הדירה בחודש (ממוצע): ${perMonth.join(" · ")}` });
+  const docs = state.files || [];
+  if (state.topics.length) {
+    const missing = state.topics.filter((t) => !["credit", "other"].includes(t.id) && !docs.some((f) => f.cat === t.id));
+    if (docs.length) out.notes.push({ go: { view: "fichman", sub: docs[0].cat }, level: "good", text: `${docs.length} מסמכים בדירה, ב-${new Set(docs.map((f) => f.cat)).size} נושאים` });
+    if (missing.length) out.notes.push({ go: { view: "fichman", sub: missing[0].id }, level: "info", text: `אין עדיין מסמכים ב: ${missing.map((t) => t.name).join(", ")}` });
+  }
   const open = entries.filter((e) => e.open);
   if (open.length) out.notes.push({ go: { view: "fichman", tab: open[0].kind, openOnly: true }, level: "warn", text: `${open.length === 1 ? "דבר אחד פתוח" : `${open.length} דברים פתוחים`} בדירה: ${open.slice(0, 2).map((e) => esc(String(e.desc).slice(0, 40))).join(" · ")}` });
   return out;
@@ -146,6 +168,7 @@ function render() {
   if (state.investments) parts.push(investmentInsights(state.investments));
   if (state.insurance) parts.push(insuranceInsights(state.insurance));
   const loading = state.insurance === undefined || state.investments === undefined || state.entries === undefined;
+  // (documents arrive separately and only add notes, so they don't hold the page in "loading")
   const cards = parts.flatMap((p) => p.cards);
   const notes = parts.flatMap((p) => p.notes);
   const order = { warn: 0, info: 1, good: 2 };
@@ -173,6 +196,7 @@ function go(dest) {
   if (!dest) return;
   document.querySelector(`#sideNav > button[data-view="${dest.view}"]`)?.click();
   if (dest.view === "fichman") {
+    window.dispatchEvent(new CustomEvent("ziv:apt-sub", { detail: dest.sub || "overview" }));
     document.querySelector(`.tabs button[data-tab="${dest.tab || "ledger"}"]`)?.click();
     const search = $("search"), openOnly = $("openOnly");
     search.value = dest.search || "";
@@ -191,6 +215,7 @@ function go(dest) {
     if (dest.policies) els = [...document.querySelectorAll(".inv-policy[data-number]")].filter((e) => dest.policies.includes(e.dataset.number));
     if (dest.sel) els = [...document.querySelectorAll(`.view-panel[data-view="${dest.view}"] ${dest.sel}`)];
     if (dest.view === "fichman" && (dest.search || dest.openOnly || dest.tab)) els = [...document.querySelectorAll("#rows tr")];
+    if (dest.sub) els = [...document.querySelectorAll("#aptTopic .doc-card, #aptTopic tbody tr")].slice(0, 12);
     const panel = document.querySelector(`.view-panel[data-view="${dest.view}"]`);
     (els[0] || panel)?.scrollIntoView({ behavior: "smooth", block: els[0] ? "center" : "start" });
     for (const e of els) e.classList.add("flash");

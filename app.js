@@ -7,8 +7,9 @@ import { getFirestore, collection, doc, onSnapshot, addDoc, setDoc, deleteDoc, g
 import { firebaseConfig, OWNER_EMAIL } from "./firebase-config.js";
 import { startInvestments, stopInvestments } from "./investments.js?v=6";
 import { startInsurance, stopInsurance } from "./insurance.js?v=5";
-import { resetInsights } from "./insights.js?v=3";
+import { resetInsights } from "./insights.js?v=4";
 import { loadOwnerTabs, clearOwnerTabs } from "./extras.js?v=1";
+import { startApartment, stopApartment } from "./apartment.js?v=1";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -76,6 +77,7 @@ function showSplash(err = "") {
 
 function stopAll() {
   clearOwnerTabs();
+  stopApartment();
   stopInvestments();
   stopInsurance();
   if (unsubEntries) { unsubEntries(); unsubEntries = null; }
@@ -95,6 +97,7 @@ function enterProfile(key) {
   startInsurance(db, user, p.doc);
   loadOwnerTabs(db, user, key);
   if (p.views.includes("fichman")) {
+    startApartment(db, user);
     unsubEntries = onSnapshot(entriesCol, (snap) => {
       entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       render();
@@ -322,6 +325,11 @@ function showView(name) {
 }
 document.querySelectorAll("#sideNav > button[data-view]").forEach((b) => (b.onclick = () => showView(b.dataset.view)));
 window.addEventListener("ziv:show", (e) => showView(e.detail));
+// A row in one of the apartment's topic tabs opens the usual edit dialog.
+window.addEventListener("ziv:edit-entry", (e) => {
+  const entry = entries.find((x) => x.id === e.detail);
+  if (entry) openEntry(entry);
+});
 
 const payCell = (e) => !e.pay ? "" :
   esc(PAY_LABELS[e.pay] || e.pay) + (e.payNote ? `<small>${esc(e.payNote)}</small>` : "");

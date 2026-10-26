@@ -556,3 +556,37 @@ tr.x-detail table { font-size: 13px; }
   border: 1px solid var(--glass-line); background: var(--field); color: var(--field-text); font: inherit; resize: vertical; }
 .q-rows { margin-top: 6px; }
 .q-copy { margin-top: 12px; }
+
+/* ---- apartment: topic sub-tabs and documents ---- */
+.apt-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.apt-tabs button { border-radius: 999px; padding: 6px 13px; font-size: 14px; background: rgba(255, 255, 255, .07); }
+.apt-tabs button.on { background: var(--accent); border-color: var(--accent); color: #1e3c72; font-weight: 700; }
+.apt-tabs small { opacity: .75; font-size: 12px; margin-inline-start: 2px; }
+.apt-h { margin: 6px 0 8px; font-size: 1.1rem; }
+.apt-h small { color: var(--muted); font-weight: 400; font-size: 13px; }
+.apt-sum { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+#aptTopic tbody tr { cursor: pointer; }
+.apt-docs-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 22px; }
+.apt-docs-head .apt-h { margin: 0; }
+.upload-btn { cursor: pointer; border: 1px solid var(--glass-line); border-radius: 10px; padding: 6px 12px; background: var(--glass); font-size: 14px; }
+.upload-btn:hover { background: rgba(255, 255, 255, .18); }
+.apt-progress { color: var(--accent); font-size: 13px; }
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-top: 10px; }
+.doc-card { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px; padding-inline-end: 34px; border-radius: 12px; cursor: pointer;
+  background: rgba(255, 255, 255, .08); border: 1px solid var(--line); transition: background .15s, transform .15s; }
+.doc-card:hover { background: rgba(255, 255, 255, .15); transform: translateY(-2px); }
+.doc-icon { font-size: 26px; line-height: 1; }
+.doc-name { font-size: 14px; font-weight: 500; word-break: break-word; }
+.doc-card small { color: var(--muted); font-size: 11.5px; }
+.doc-card .icon-del { top: 8px; inset-inline-end: 8px; width: 22px; height: 22px; }
+dialog.doc-dlg { width: min(1000px, calc(100vw - 24px)); height: min(90vh, 1000px); padding: 0; display: flex; flex-direction: column; }
+dialog.doc-dlg:not([open]) { display: none; }
+.doc-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--glass-line); }
+.doc-head h2 { margin: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+a.btnlike { display: inline-block; border: 1px solid var(--glass-line); border-radius: 10px; padding: 6px 12px; color: var(--text); text-decoration: none; font-size: 14px; white-space: nowrap; }
+a.btnlike:hover { background: rgba(255, 255, 255, .15); }
+.doc-body { flex: 1; min-height: 0; overflow: auto; background: #2a2f3a; display: flex; align-items: flex-start; justify-content: center; }
+.doc-body iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.doc-body img { max-width: 100%; height: auto; display: block; margin: auto; }
+.doc-body .soon, .doc-body .err { padding: 24px; }
+@media (max-width: 700px) { .doc-head { flex-wrap: wrap; } .doc-head h2 { width: 100%; } }
