@@ -15,8 +15,12 @@ service cloud.firestore {
           && (request.auth.token.email_verified == true
               || request.auth.token.firebase.sign_in_provider == 'password');
     }
+    // The owner must sign in with Google: a password account with the owner's email
+    // (possible if sign-up were ever open) must not get the owner's rights.
     function isOwner() {
-      return signedIn() && request.auth.token.email == 'gavishori@gmail.com';
+      return request.auth != null && request.auth.token.email_verified == true
+          && request.auth.token.firebase.sign_in_provider == 'google.com'
+          && request.auth.token.email == 'gavishori@gmail.com';
     }
     function allowed() {
       return isOwner()
