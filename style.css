@@ -590,3 +590,10 @@ a.btnlike:hover { background: rgba(255, 255, 255, .15); }
 .doc-body img { max-width: 100%; height: auto; display: block; margin: auto; }
 .doc-body .soon, .doc-body .err { padding: 24px; }
 @media (max-width: 700px) { .doc-head { flex-wrap: wrap; } .doc-head h2 { width: 100%; } }
+
+/* password field with an eye to show / hide it */
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 42px; }
+.pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: #1d2330; font-size: 17px; line-height: 1; cursor: pointer; }
+.pw-eye:hover { background: rgba(30, 60, 114, .1); }

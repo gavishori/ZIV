@@ -162,6 +162,16 @@ $("pwForm").onsubmit = async (ev) => {
   }
 };
 $("pwOut").onclick = () => signOut(auth);
+// The eye shows or hides the password while typing.
+$("pwEye").onclick = () => {
+  const show = $("pwPass").type === "password";
+  $("pwPass").type = show ? "text" : "password";
+  $("pwEye").textContent = show ? "🙈" : "👁";
+  $("pwEye").setAttribute("aria-pressed", String(show));
+  $("pwEye").setAttribute("aria-label", show ? "הסתרת הסיסמה" : "הצגת הסיסמה");
+  $("pwEye").title = $("pwEye").getAttribute("aria-label");
+  $("pwPass").focus();
+};
 $("pwReset").onclick = async () => {
   const email = $("pwEmail").value.trim();
   if (!email) { $("loginErr").textContent = "כתבו את המייל ואז לחצו שוב על \"שכחתי סיסמה\"."; return; }

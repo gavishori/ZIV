@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=36">
+<link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
 <script>/* גביש: כפתור קבוע בפינה השמאלית העליונה, מבודד מה-CSS של הדף */(function(){if(document.getElementById("gavish-hub"))return;var h=document.createElement("div");h.id="gavish-hub";h.style.cssText="position:fixed!important;top:10px!important;left:10px!important;width:36px!important;height:36px!important;z-index:2147483000!important;margin:0!important;padding:0!important;display:block!important;transform:none!important;";var r=h.attachShadow({mode:"open"});r.innerHTML='<style>a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;box-sizing:border-box;font-size:19px;line-height:1;text-decoration:none;background:rgba(15,31,61,.84);border:1px solid rgba(255,255,255,.32);border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.3);font-family:sans-serif}a:hover{background:rgba(40,70,130,.95)}</style><a href="https://gavishori.github.io/Timer/home/" title="גביש - כל הפרויקטים" aria-label="גביש - כל הפרויקטים">💎</a>';document.body.insertBefore(h,document.body.firstChild)})();</script>
@@ -36,7 +36,10 @@
           <form class="pw-form" id="pwForm" hidden>
             <p class="pw-title">כניסה עם מייל וסיסמה</p>
             <input type="email" id="pwEmail" placeholder="מייל" autocomplete="username" dir="ltr" required>
-            <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr" required>
+            <div class="pw-wrap">
+              <input type="password" id="pwPass" placeholder="סיסמה" autocomplete="current-password" dir="ltr" required>
+              <button type="button" class="pw-eye" id="pwEye" aria-label="הצגת הסיסמה" title="הצגת הסיסמה" aria-pressed="false">👁</button>
+            </div>
             <button class="primary" type="submit">אישור</button>
             <p class="hint-login"><button type="button" class="linklike" id="pwReset">שכחתי סיסמה</button> · או בוחרים במי לצפות ונכנסים עם Google</p>
           </form>
@@ -266,6 +269,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=28"></script>
+<script type="module" src="app.js?v=29"></script>
 </body>
 </html>
