@@ -152,6 +152,20 @@ function syncLoginBox() {
 $("pwForm").onsubmit = async (ev) => {
   ev.preventDefault();
   $("loginErr").textContent = "";
+  // The owner's rights come only with a Google sign-in, so the owner's email goes to Google.
+  if ($("pwEmail").value.trim().toLowerCase() === OWNER_EMAIL) {
+    $("pwPass").value = "";
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ login_hint: OWNER_EMAIL });
+      await signInWithPopup(auth, provider);
+      syncLoginBox();
+      $("profiles").classList.add("pick-now");
+    } catch (e) {
+      $("loginErr").textContent = authError(e);
+    }
+    return;
+  }
   try {
     await signInWithEmailAndPassword(auth, $("pwEmail").value.trim(), $("pwPass").value);
     $("pwPass").value = "";
@@ -188,15 +202,8 @@ getRedirectResult(auth).catch((e) => { $("loginErr").textContent = authError(e);
 
 document.querySelectorAll(".profile").forEach((b) => (b.onclick = async () => {
   $("loginErr").textContent = "";
-  if (!user && $("pwEmail").value.trim() && $("pwPass").value) {
-    try {
-      await signInWithEmailAndPassword(auth, $("pwEmail").value.trim(), $("pwPass").value);
-      $("pwPass").value = "";
-    } catch (e) {
-      $("loginErr").textContent = authError(e);
-      return;
-    }
-  }
+  // Picking a person always signs in with Google (a browser may have filled the password form by
+  // itself); password accounts sign in with the form's own button first.
   if (!user && !auth.currentUser) {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider());
