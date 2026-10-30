@@ -9,7 +9,7 @@ import { startInvestments, stopInvestments } from "./investments.js?v=6";
 import { startInsurance, stopInsurance } from "./insurance.js?v=5";
 import { resetInsights } from "./insights.js?v=4";
 import { loadOwnerTabs, clearOwnerTabs } from "./extras.js?v=1";
-import { startApartment, stopApartment } from "./apartment.js?v=1";
+import { startApartment, stopApartment } from "./apartment.js?v=2";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -514,34 +514,62 @@ function parseWorkbook(wb) {
   return out;
 }
 
-$("importBtn").onclick = () => $("importFile").click();
-$("importFile").onchange = async (ev) => {
-  const file = ev.target.files[0];
-  ev.target.value = "";
-  if (!file) return;
-  try {
-    const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true });
-    const items = parseWorkbook(wb);
-    if (!items.length) return alert("לא נמצאו רשומות בקובץ.");
-    const nT = items.filter((x) => x.kind === "tenant").length;
-    const msg = `נמצאו ${items.length} רשומות (${nT} תשלומי דיירים, ${items.length - nT} הכנסות והוצאות).` +
-      (entries.length ? `\n\nהייבוא יחליף את ${entries.length} הרשומות הקיימות.` : "") + "\n\nלהמשיך?";
-    if (!confirm(msg)) return;
-    // Firestore batches are limited to 500 writes.
-    const ops = [...entries.map((e) => ["del", e.id]), ...items.map((x) => ["add", x])];
-    for (let i = 0; i < ops.length; i += 450) {
-      const batch = writeBatch(db);
-      for (const [op, v] of ops.slice(i, i + 450)) {
-        if (op === "del") batch.delete(doc(entriesCol, v));
-        else batch.set(doc(entriesCol), { ...v, open: false, updatedAt: serverTimestamp(), updatedBy: user.email });
-      }
-      await batch.commit();
-    }
-    toast(`יובאו ${items.length} רשומות`);
-  } catch (e) {
-    alert("הייבוא נכשל: " + e.message);
+// An uploaded Excel in the old layout is merged, not replaced: only what changed comes in.
+// Each Excel row is matched to a row already here (each row matches once):
+//   1. same kind, date, amount and text          -> nothing to do
+//   2. same kind, date and amount (text changed) -> update the text
+//   3. same kind and text (date/amount changed)  -> update date and amount
+// Anything left is new. Rows that exist only on the site are kept.
+const normText = (t) => String(t || "").replace(/\s+/g, " ").trim();
+function planMerge(items) {
+  const pool = entries.map((e) => ({ ...e, used: false }));
+  const plan = { add: [], update: [], same: 0 };
+  const take = (pred) => { const m = pool.find((e) => !e.used && pred(e)); if (m) m.used = true; return m; };
+  for (const x of items) {
+    const sameKind = (e) => e.kind === x.kind;
+    if (take((e) => sameKind(e) && e.date === x.date && round2(e.amount) === x.amount && normText(e.desc) === normText(x.desc))) { plan.same++; continue; }
+    const m = (x.date && x.amount ? take((e) => sameKind(e) && e.date === x.date && round2(e.amount) === x.amount) : null)
+      || take((e) => sameKind(e) && normText(e.desc) === normText(x.desc));
+    if (!m) { plan.add.push(x); continue; }
+    const ch = {};
+    if (normText(m.desc) !== normText(x.desc)) ch.desc = x.desc;
+    if (m.date !== x.date && x.date) ch.date = x.date;
+    if (round2(m.amount) !== x.amount) ch.amount = x.amount;
+    if (Object.keys(ch).length) plan.update.push({ id: m.id, before: m, ch }); else plan.same++;
   }
-};
+  return plan;
+}
+
+// apartment.js hands us an uploaded Excel; we answer whether anything was merged.
+window.addEventListener("ziv:xlsx", async (ev) => {
+  const { buffer, name, done } = ev.detail;
+  try {
+    const items = parseWorkbook(XLSX.read(buffer, { cellDates: true }));
+    if (!items.length) return done(false);
+    const plan = planMerge(items);
+    if (!plan.add.length && !plan.update.length) { toast(`${name}: אין שינויים מהקובץ`); return done(false); }
+    const line = (e) => `• ${showDate(e.date) || "ללא תאריך"} · ${fmt(Number(e.amount) || 0)} · ${String(e.desc).slice(0, 50)}`;
+    const msg = [`מהקובץ ${name}:`, ``,
+      plan.add.length ? `${plan.add.length} רשומות חדשות:` : "", ...plan.add.slice(0, 8).map(line), plan.add.length > 8 ? `…ועוד ${plan.add.length - 8}` : "",
+      plan.update.length ? `${plan.update.length} רשומות שהשתנו:` : "",
+      ...plan.update.slice(0, 8).map((u) => line({ ...u.before, ...u.ch }) + "  (" + Object.keys(u.ch).map((k) => ({ desc: "תיאור", date: "תאריך", amount: "סכום" })[k]).join(", ") + ")"),
+      plan.update.length > 8 ? `…ועוד ${plan.update.length - 8}` : "",
+      ``, `${plan.same} רשומות זהות לא ישתנו, ורשומות שנוספו באתר יישארו. לעדכן?`].filter((l, i, a) => l !== "" || (a[i - 1] !== "" && i > 0)).join("\n");
+    if (!confirm(msg)) return done(false);
+    let order = Math.max(0, ...entries.map((e) => e.order || 0));
+    for (const x of plan.add) {
+      await setDoc(doc(entriesCol), { ...x, order: ++order, open: false, updatedAt: serverTimestamp(), updatedBy: user.email });
+    }
+    for (const u of plan.update) {
+      await setDoc(doc(entriesCol, u.id), { ...u.ch, updatedAt: serverTimestamp(), updatedBy: user.email }, { merge: true });
+    }
+    toast(`נקלטו ${plan.add.length} חדשות ו-${plan.update.length} עדכונים`);
+    done(true);
+  } catch (e) {
+    alert("קריאת האקסל נכשלה: " + e.message);
+    done(false);
+  }
+});
 
 // ---------- export ----------
 $("exportBtn").onclick = () => {

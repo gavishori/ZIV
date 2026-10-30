@@ -116,8 +116,6 @@
       <h2>🏢 דירה פיכמן 5</h2>
       <div class="head-actions">
         <button class="ghost" id="exportBtn">ייצוא לאקסל</button>
-        <button class="ghost" id="importBtn">ייבוא מאקסל</button>
-        <input type="file" id="importFile" accept=".xlsx,.xls" hidden>
       </div>
     </div>
     <nav class="apt-tabs" id="aptTabs" aria-label="נושאים בדירה"></nav>
@@ -153,7 +151,7 @@
         <tbody id="rows"></tbody>
         <tfoot><tr><td colspan="4">סה״כ מוצג</td><td class="num" id="shownSum"></td><td></td></tr></tfoot>
       </table>
-      <p class="empty" id="emptyMsg" hidden>אין רשומות. אפשר להוסיף, או לייבא את קובץ האקסל הקיים.</p>
+      <p class="empty" id="emptyMsg" hidden>אין רשומות. אפשר להוסיף, או להעלות את קובץ האקסל בלשונית מסמכים.</p>
     </div>
     </div>
     <div id="aptTopic" hidden></div>
@@ -269,6 +267,6 @@
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=30"></script>
+<script type="module" src="app.js?v=31"></script>
 </body>
 </html>

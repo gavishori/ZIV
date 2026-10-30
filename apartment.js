@@ -118,6 +118,14 @@ async function upload(list) {
   for (const [n, file] of [...list].entries()) {
     if (file.size > MAX_FILE) { alert(`${file.name} גדול מ-15MB ולא הועלה.`); continue; }
     prog.textContent = `מעלה ${n + 1}/${list.length}: ${file.name}…`;
+    // An Excel in the ledger layout also updates the table: only its changes come in (see app.js).
+    if (/\.xlsx?$/i.test(file.name)) {
+      prog.textContent = `בודק שינויים ב-${file.name}…`;
+      const buffer = await file.arrayBuffer();
+      await new Promise((done) => window.dispatchEvent(new CustomEvent("ziv:xlsx", { detail: { buffer, name: file.name, done } })));
+      prog.textContent = `שומר את ${file.name}…`;
+    }
+    const older = files.filter((f) => f.cat === cat && f.name === file.name);
     const b64 = await readB64(file);
     const id = doc(collection(db, "files")).id;
     const chunks = Math.max(1, Math.ceil(b64.length / CHUNK));
@@ -127,6 +135,8 @@ async function upload(list) {
     // The metadata goes last, so a document only shows once all its pieces are saved.
     await setDoc(doc(db, "files", id), { name: file.name, type: file.type || "", size: file.size, cat, chunks, private: priv,
       uploadedAt: serverTimestamp(), uploadedBy: user.email });
+    // A newer copy of the same document replaces the older one (only the owner may delete).
+    if (isOwner) for (const f of older) await dropFile(f);
   }
   prog.textContent = "";
 }
@@ -165,6 +175,9 @@ async function openFile(f) {
 
 async function removeFile(f) {
   if (!confirm(`למחוק את "${f.name}"?`)) return;
+  await dropFile(f);
+}
+async function dropFile(f) {
   await deleteDoc(doc(db, "files", f.id));
   for (let i = 0; i < f.chunks; i++) await deleteDoc(doc(db, "fileChunks", `${f.id}_${i}`)).catch(() => {});
 }
