@@ -597,3 +597,22 @@ a.btnlike:hover { background: rgba(255, 255, 255, .15); }
 .pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; padding: 0;
   border: 0; border-radius: 8px; background: transparent; color: #1d2330; font-size: 17px; line-height: 1; cursor: pointer; }
 .pw-eye:hover { background: rgba(30, 60, 114, .1); }
+
+/* overview: notes (rows of ₪0) and cards that explain themselves */
+.apt-notes { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; }
+.apt-notes h3 { margin: 0 0 6px; font-size: 1rem; }
+.apt-notes h3 small { color: var(--muted); font-weight: 400; }
+.apt-note { display: flex; gap: 12px; align-items: baseline; padding: 6px 4px; border-top: 1px solid var(--line); cursor: pointer; }
+.apt-note:first-of-type { border-top: 0; }
+.apt-note:hover { background: rgba(255, 255, 255, .06); }
+.apt-note .date { color: var(--muted); font-size: 13px; white-space: nowrap; min-width: 82px; }
+.apt-note .txt { flex: 1; white-space: pre-wrap; font-size: 14px; }
+.apt-note.open .tag { border-color: var(--accent); color: var(--accent); }
+.card.explain { cursor: pointer; position: relative; transition: background .15s; }
+.card.explain:hover { background: rgba(255, 255, 255, .14); }
+.card .how { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-top: 4px; }
+dialog.explain-dlg { width: min(860px, calc(100vw - 24px)); max-height: 88vh; padding: 0; }
+.explain-body { padding: 14px 18px 18px; overflow: auto; max-height: calc(88vh - 60px); }
+.explain-body h3 { margin: 16px 0 6px; font-size: 1rem; }
+.explain-body h3 small { color: var(--muted); font-weight: 400; font-size: 12px; }
+.formula { background: rgba(255, 211, 77, .12); border: 1px solid rgba(255, 211, 77, .45); border-radius: 10px; padding: 10px 12px; margin: 0 0 6px; }

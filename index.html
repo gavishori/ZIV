@@ -7,7 +7,7 @@
 <title>גביש · ניהול</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Orbitron:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=37">
+<link rel="stylesheet" href="style.css?v=38">
 </head>
 <body>
 <script>/* גביש: כפתור קבוע בפינה השמאלית העליונה, מבודד מה-CSS של הדף */(function(){if(document.getElementById("gavish-hub"))return;var h=document.createElement("div");h.id="gavish-hub";h.style.cssText="position:fixed!important;top:10px!important;left:10px!important;width:36px!important;height:36px!important;z-index:2147483000!important;margin:0!important;padding:0!important;display:block!important;transform:none!important;";var r=h.attachShadow({mode:"open"});r.innerHTML='<style>a{display:flex;align-items:center;justify-content:center;width:36px;height:36px;box-sizing:border-box;font-size:19px;line-height:1;text-decoration:none;background:rgba(15,31,61,.84);border:1px solid rgba(255,255,255,.32);border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.3);font-family:sans-serif}a:hover{background:rgba(40,70,130,.95)}</style><a href="https://gavishori.github.io/" title="גביש - כל הפרויקטים" aria-label="גביש - כל הפרויקטים">💎</a>';document.body.insertBefore(h,document.body.firstChild)})();</script>
@@ -121,12 +121,13 @@
     <nav class="apt-tabs" id="aptTabs" aria-label="נושאים בדירה"></nav>
     <div id="aptOverview">
     <div class="cards">
-      <div class="card"><span>תשלומי דיירים</span><b id="sumTenant">0</b></div>
-      <div class="card"><span>הכנסות</span><b id="sumIncome" class="pos">0</b></div>
-      <div class="card"><span>הוצאות</span><b id="sumExpense" class="neg">0</b></div>
-      <div class="card main"><span>מצב החשבון (הכנסות והוצאות פחות תשלומי דיירים)</span><b id="sumBalance">0</b></div>
+      <div class="card explain" data-explain="tenant" role="button" tabindex="0"><span>תשלומי דיירים</span><b id="sumTenant">0</b><i class="how">איך חושב? ›</i></div>
+      <div class="card explain" data-explain="income" role="button" tabindex="0"><span>הכנסות</span><b id="sumIncome" class="pos">0</b><i class="how">איך חושב? ›</i></div>
+      <div class="card explain" data-explain="expense" role="button" tabindex="0"><span>הוצאות</span><b id="sumExpense" class="neg">0</b><i class="how">איך חושב? ›</i></div>
+      <div class="card main explain" data-explain="balance" role="button" tabindex="0"><span>מצב החשבון (הכנסות והוצאות פחות תשלומי דיירים)</span><b id="sumBalance">0</b><i class="how">איך חושב? ›</i></div>
     </div>
 
+    <div class="apt-notes" id="aptNotes" hidden></div>
     <div class="toolbar">
       <div class="tabs" role="tablist">
         <button role="tab" data-tab="ledger" class="on">הכנסות והוצאות</button>
@@ -264,9 +265,14 @@
   <div class="doc-body" id="docBody"></div>
 </dialog>
 
+<dialog id="explainDlg" class="explain-dlg">
+  <div class="doc-head"><h2 id="explainTitle"></h2><span class="grow"></span><button class="ghost" id="explainClose">סגירה</button></div>
+  <div class="explain-body" id="explainBody"></div>
+</dialog>
+
 <div id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="app.js?v=32"></script>
+<script type="module" src="app.js?v=33"></script>
 </body>
 </html>

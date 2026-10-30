@@ -366,6 +366,14 @@ function render() {
   $("sumBalance").textContent = fmt(balance);
   $("sumBalance").className = balance < 0 ? "neg" : "pos";
 
+  // Rows of ₪0 are notes (an envelope picked up, a deposit made): gathered on top of the overview.
+  const notes = entries.filter((e) => !Number(e.amount)).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  $("aptNotes").hidden = !notes.length;
+  $("aptNotes").innerHTML = `<h3>📝 הערות <small>${notes.length}</small></h3>` + notes.map((e) => `
+    <div class="apt-note${e.open ? " open" : ""}" data-note-id="${e.id}" role="button" tabindex="0">
+      <span class="date">${showDate(e.date) || "ללא תאריך"}</span><span class="txt">${esc(e.desc)}</span>${e.open ? '<span class="tag">פתוח</span>' : ""}
+    </div>`).join("");
+
   const list = tab === "tenant" ? tenant : ledger;
 
   // Category filter options for the current tab.
@@ -415,6 +423,42 @@ $("rows").onclick = (ev) => {
   const tr = ev.target.closest("tr[data-id]");
   if (tr) openEntry(entries.find((e) => e.id === tr.dataset.id));
 };
+
+// ---------- how a card was computed ----------
+function explain(kind) {
+  const tenant = entries.filter((e) => e.kind === "tenant" && Number(e.amount));
+  const ledger = entries.filter((e) => e.kind === "ledger");
+  const inc = ledger.filter((e) => e.amount > 0), exp = ledger.filter((e) => e.amount < 0);
+  const sum = (a) => round2(a.reduce((s, e) => s + (Number(e.amount) || 0), 0));
+  const table = (rows, title) => {
+    const sorted = [...rows].sort((a, b) => (a.date || "9").localeCompare(b.date || "9"));
+    return `<h3>${title} <small>${rows.length} שורות</small></h3><div class="tablewrap"><table><thead><tr><th>תאריך</th><th>תיאור</th><th class="num">סכום</th></tr></thead>
+      <tbody>${sorted.map((e) => `<tr><td class="date">${showDate(e.date) || "—"}</td><td class="desc">${esc(e.desc)}</td><td class="num">${fmt(Number(e.amount))}</td></tr>`).join("")}</tbody>
+      <tfoot><tr><td colspan="2">סה״כ</td><td class="num">${fmt(sum(rows))}</td></tr></tfoot></table></div>`;
+  };
+  const T = sum(tenant), I = sum(inc), E = sum(exp), B = round2(I + E - T);
+  const parts = {
+    tenant: ["תשלומי דיירים", `<p class="formula">סכום כל השורות בלשונית "תשלומי דיירים" (ועד, מים, חשמל ששולמו עבור השוכרים) = <b>${fmt(T)}</b></p>` + table(tenant, "השורות")],
+    income: ["הכנסות", `<p class="formula">סכום השורות החיוביות בלשונית "הכנסות והוצאות" = <b>${fmt(I)}</b></p>` + table(inc, "ההכנסות")],
+    expense: ["הוצאות", `<p class="formula">סכום השורות השליליות בלשונית "הכנסות והוצאות" = <b>${fmt(E)}</b></p>` + table(exp, "ההוצאות")],
+    balance: ["מצב החשבון", `<p class="formula">הכנסות ${fmt(I)} + הוצאות ${fmt(E)} − תשלומי דיירים ${fmt(T)} = <b>${fmt(B)}</b></p>
+      <p class="hint">כמו באקסל המקורי: הרווח מהדירה פחות מה ששולם עבור השוכרים (ועד, מים, חשמל).</p>` +
+      table(inc, "הכנסות") + table(exp, "הוצאות") + table(tenant, "תשלומי דיירים")],
+  };
+  const [title, html] = parts[kind];
+  $("explainTitle").textContent = `איך חושב: ${title}`;
+  $("explainBody").innerHTML = html;
+  $("explainDlg").showModal();
+}
+document.querySelectorAll(".card.explain").forEach((c) => {
+  c.onclick = () => explain(c.dataset.explain);
+  c.onkeydown = (ev) => { if (ev.key === "Enter") explain(c.dataset.explain); };
+});
+$("explainClose").onclick = () => $("explainDlg").close();
+$("aptNotes").addEventListener("click", (ev) => {
+  const n = ev.target.closest("[data-note-id]");
+  if (n) openEntry(entries.find((e) => e.id === n.dataset.noteId));
+});
 
 // ---------- add / edit ----------
 const form = $("entryForm");
