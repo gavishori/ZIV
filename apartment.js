@@ -71,7 +71,8 @@ function render() {
   renderTabs();
   if (sub === "overview") return;
   const topic = TOPICS.find((t) => t.id === sub);
-  const rows = entries.filter(topic.match).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  // A row of ₪0 is a note (e.g. an envelope picked up), not a payment: it stays in the overview only.
+  const rows = entries.filter((e) => topic.match(e) && Number(e.amount) !== 0).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   const paid = rows.filter((r) => r.kind === "tenant").reduce((s, r) => s + (Number(r.amount) || 0), 0);
   const ledger = rows.filter((r) => r.kind === "ledger").reduce((s, r) => s + (Number(r.amount) || 0), 0);
   const docs = files.filter((f) => f.cat === sub).sort((a, b) => (b.name || "").localeCompare(a.name || "", "he"));

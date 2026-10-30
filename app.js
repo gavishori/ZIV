@@ -9,7 +9,7 @@ import { startInvestments, stopInvestments } from "./investments.js?v=6";
 import { startInsurance, stopInsurance } from "./insurance.js?v=5";
 import { resetInsights } from "./insights.js?v=4";
 import { loadOwnerTabs, clearOwnerTabs } from "./extras.js?v=1";
-import { startApartment, stopApartment } from "./apartment.js?v=2";
+import { startApartment, stopApartment } from "./apartment.js?v=3";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
