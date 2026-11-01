@@ -32,6 +32,7 @@ export function startApartment(firestore, currentUser) {
   db = firestore;
   user = currentUser;
   isOwner = user?.email === OWNER_EMAIL;
+  $("aptPrivateBox").hidden = !isOwner;
   stopApartment();
   // Other users may only ask for documents that aren't private (the rules check this too).
   const q = isOwner ? collection(db, "files") : query(collection(db, "files"), where("private", "==", false));
@@ -54,6 +55,7 @@ window.addEventListener("ziv:apt-sub", (e) => showSub(e.detail));
 
 function showSub(id) {
   sub = TOPICS.some((t) => t.id === id) ? id : "overview";
+  $("aptPrivate").checked = sub === "credit";
   document.querySelectorAll("#aptTabs button").forEach((b) => b.classList.toggle("on", b.dataset.sub === sub));
   $("aptOverview").hidden = sub !== "overview";
   $("aptTopic").hidden = sub === "overview";
@@ -85,9 +87,6 @@ function render() {
     </tbody></table></div>` : `<p class="soon">אין רשומות בנושא הזה בטבלה.</p>`}
     <div class="apt-docs-head">
       <h3 class="apt-h">📄 מסמכים <small>${docs.length || ""}</small></h3>
-      <label class="ghost upload-btn">⬆️ העלאת מסמכים<input type="file" id="aptUpload" multiple hidden></label>
-      ${isOwner ? `<label class="chk"><input type="checkbox" id="aptPrivate"${sub === "credit" ? " checked" : ""}> 🔒 רק לי</label>` : ""}
-      <span class="apt-progress" id="aptProgress"></span>
     </div>
     ${docs.length ? `<div class="doc-grid">${docs.map(docCard).join("")}</div>` : `<p class="soon">עדיין אין מסמכים. אפשר להעלות PDF, תמונות ומסמכי Word.</p>`}`;
 }
@@ -112,11 +111,21 @@ const readB64 = (file) => new Promise((res, rej) => {
   r.readAsDataURL(file);
 });
 
+// In a topic tab a document goes to that topic; in the overview, the file's name decides.
+function topicOf(name) {
+  const rules = [[/חשמל/, "power"], [/מים|ביוב/, "water"], [/ועד/, "vaad"], [/ארנונה/, "arnona"],
+    [/שכירות|חוזה|שכ["״]?ד|צ['׳]?קים/, "rent"], [/אשראי/, "credit"], [/תיקון|תיקונים|בעלי מקצוע/, "repairs"],
+    [/קבלה|חשבונית|אחריות|רכישה/, "buy"]];
+  return rules.find(([re]) => re.test(name))?.[1] || "other";
+}
+
 async function upload(list) {
   const priv = !!$("aptPrivate")?.checked;
-  const cat = sub;
   const prog = $("aptProgress");
+  const placed = {};
   for (const [n, file] of [...list].entries()) {
+    const cat = sub === "overview" ? topicOf(file.name) : sub;
+    placed[cat] = (placed[cat] || 0) + 1;
     if (file.size > MAX_FILE) { alert(`${file.name} גדול מ-15MB ולא הועלה.`); continue; }
     prog.textContent = `מעלה ${n + 1}/${list.length}: ${file.name}…`;
     // An Excel in the ledger layout also updates the table: only its changes come in (see app.js).
@@ -139,7 +148,11 @@ async function upload(list) {
     // A newer copy of the same document replaces the older one (only the owner may delete).
     if (isOwner) for (const f of older) await dropFile(f);
   }
-  prog.textContent = "";
+  // Say where the documents went, since from the overview the topic was chosen for them.
+  const where = Object.entries(placed).map(([id, c]) => `${TOPICS.find((t) => t.id === id).name} (${c})`).join(", ");
+  prog.textContent = `נשמר ב: ${where}`;
+  setTimeout(() => (prog.textContent = ""), 6000);
+  render();
 }
 
 // ---------- view / download / delete ----------
@@ -197,7 +210,9 @@ document.addEventListener("click", (ev) => {
 });
 document.addEventListener("change", (ev) => {
   if (ev.target.id === "aptUpload" && ev.target.files.length) {
-    upload(ev.target.files).catch((e) => { alert("ההעלאה נכשלה: " + e.message); $("aptProgress").textContent = ""; });
+    const list = [...ev.target.files];
+    ev.target.value = ""; // so picking the same file again (an updated Excel) still counts as a change
+    upload(list).catch((e) => { alert("ההעלאה נכשלה: " + e.message); $("aptProgress").textContent = ""; });
   }
 });
 document.addEventListener("keydown", (ev) => {

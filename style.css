@@ -616,3 +616,8 @@ dialog.explain-dlg { width: min(860px, calc(100vw - 24px)); max-height: 88vh; pa
 .explain-body h3 { margin: 16px 0 6px; font-size: 1rem; }
 .explain-body h3 small { color: var(--muted); font-weight: 400; font-size: 12px; }
 .formula { background: rgba(255, 211, 77, .12); border: 1px solid rgba(255, 211, 77, .45); border-radius: 10px; padding: 10px 12px; margin: 0 0 6px; }
+
+/* the upload button in the apartment's head */
+.head-actions { flex-wrap: wrap; align-items: center; }
+.upload-btn.primary { background: var(--accent); border-color: var(--accent); color: #1e3c72; font-weight: 700; }
+.upload-btn.primary:hover { background: var(--accent); filter: brightness(1.06); }
